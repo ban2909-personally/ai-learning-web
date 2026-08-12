@@ -22,7 +22,7 @@ export function HomePage() {
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link to="/register" className="rounded-xl bg-ink px-6 py-3 font-semibold text-white hover:bg-slate-700">Bắt đầu học</Link>
-              <a href="#features" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold hover:bg-slate-50">Khám phá nền tảng</a>
+              <Link to="/courses" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold hover:bg-slate-50">Xem khóa học</Link>
             </div>
           </div>
         </div>

@@ -3,6 +3,8 @@ import { AppLayout } from '../components/AppLayout'
 import { AuthProvider } from '../features/auth/AuthContext'
 import { AuthPage } from '../features/auth/AuthPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
+import { CourseCatalogPage } from '../features/catalog/CourseCatalogPage'
+import { CourseDetailPage } from '../features/catalog/CourseDetailPage'
 import { HomePage } from '../features/catalog/HomePage'
 import { DashboardPage } from '../features/learning/DashboardPage'
 
@@ -13,6 +15,8 @@ export function App() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route index element={<HomePage />} />
+            <Route path="courses" element={<CourseCatalogPage />} />
+            <Route path="courses/:slug" element={<CourseDetailPage />} />
             <Route path="login" element={<AuthPage mode="login" />} />
             <Route path="register" element={<AuthPage mode="register" />} />
             <Route element={<ProtectedRoute />}>

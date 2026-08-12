@@ -18,7 +18,7 @@ export function AppHeader() {
           Learning
         </Link>
         <nav className="flex items-center gap-3 text-sm" aria-label="Điều hướng chính">
-          <NavLink to="/" className="hidden text-slate-600 hover:text-ink sm:block">Khóa học</NavLink>
+          <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink sm:block">Khóa học</NavLink>
           {user ? (
             <>
               <NavLink to="/dashboard" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
