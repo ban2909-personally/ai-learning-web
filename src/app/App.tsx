@@ -1,0 +1,26 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AppLayout } from '../components/AppLayout'
+import { AuthProvider } from '../features/auth/AuthContext'
+import { AuthPage } from '../features/auth/AuthPage'
+import { ProtectedRoute } from '../features/auth/ProtectedRoute'
+import { HomePage } from '../features/catalog/HomePage'
+import { DashboardPage } from '../features/learning/DashboardPage'
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="login" element={<AuthPage mode="login" />} />
+            <Route path="register" element={<AuthPage mode="register" />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
