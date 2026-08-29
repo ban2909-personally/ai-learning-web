@@ -21,7 +21,7 @@ export function AppHeader() {
           <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink sm:block">Khóa học</NavLink>
           {user ? (
             <>
-              <NavLink to="/dashboard" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
+              <NavLink to="/my-learning" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
                 Không gian học
               </NavLink>
               <button onClick={signOut} className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">

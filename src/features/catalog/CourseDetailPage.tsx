@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { apiRequest, ApiError } from '../../lib/api'
 import type { CourseDetail } from '../../types/catalog'
 import { formatCourseDuration, formatCourseLevel, formatCoursePrice } from './catalogFormatters'
+import { EnrollmentButton } from '../learning/EnrollmentButton'
 
 export function CourseDetailPage() {
   const { slug } = useParams()
@@ -42,8 +43,8 @@ export function CourseDetailPage() {
           </div>
           <aside className="rounded-2xl bg-white p-7 text-ink shadow-2xl">
             <p className="text-3xl font-bold">{formatCoursePrice(course.price, course.currency)}</p>
-            <button className="mt-6 w-full rounded-xl bg-brand-600 px-5 py-3 font-semibold text-white hover:bg-brand-700">Đăng ký học</button>
-            <p className="mt-4 text-center text-xs text-slate-500">Tính năng ghi danh sẽ được kết nối ở phase Learning.</p>
+            <EnrollmentButton courseSlug={course.slug} price={course.price} />
+            <p className="mt-4 text-center text-xs text-slate-500">Ghi danh miễn phí ngay; khóa trả phí cần hoàn tất checkout.</p>
           </aside>
         </div>
       </section>
