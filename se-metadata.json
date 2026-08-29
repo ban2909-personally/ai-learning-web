@@ -1,0 +1,16 @@
+{
+  "browsers": [],
+  "drivers": [],
+  "stats": [
+    {
+      "browser": "chrome",
+      "browser_version": "",
+      "os": "windows",
+      "arch": "x86_64",
+      "lang": "javascript",
+      "selenium_version": "4.48",
+      "stats_ttl": 1788049373
+    }
+  ],
+  "cached_assets": []
+}

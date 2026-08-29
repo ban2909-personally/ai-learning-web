@@ -14,7 +14,7 @@ export function HomePage() {
         <div className="relative mx-auto max-w-6xl px-5 py-24 sm:py-32">
           <div className="max-w-3xl">
             <p className="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">AI-powered learning</p>
-            <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em] sm:text-7xl">
+            <h1 className="text-4xl font-semibold leading-[1.08] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
               Học lập trình bằng cách hiểu, không phải ghi nhớ.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
