@@ -38,3 +38,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Responsive Selenium smoke
+        run: pnpm test:e2e

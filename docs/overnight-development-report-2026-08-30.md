@@ -29,3 +29,11 @@ after a backend module-isolation test exposed a missing boundary mock.
 See `docs/overnight-development-report-2026-08-30.md` in `ai-learning-api` for Flyway V4/V5,
 curriculum contracts, lesson authorization, progress transactions, security rules, commit history,
 and the CI correction.
+
+## Phase 3 responsive and browser gate
+
+- Branch: `test/responsive-selenium-smoke`.
+- Header and hero typography are mobile-first down to 320px while preserving tablet/desktop density.
+- Selenium smoke runs the production preview at 320px, 768px, and 1440px, rejects horizontal overflow,
+  verifies the primary home content, and follows the catalog navigation.
+- The smoke is part of GitHub Actions after lint, component tests, and production build.

@@ -15,10 +15,10 @@ export function AppHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight text-ink">
           <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">AI</span>
-          Learning
+          <span className="hidden sm:inline">Learning</span>
         </Link>
         <nav className="flex items-center gap-3 text-sm" aria-label="Điều hướng chính">
-          <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink sm:block">Khóa học</NavLink>
+          <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink md:block">Khóa học</NavLink>
           {user ? (
             <>
               <NavLink to="/my-learning" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
@@ -30,9 +30,9 @@ export function AppHeader() {
             </>
           ) : (
             <>
-              <NavLink to="/login" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">Đăng nhập</NavLink>
-              <NavLink to="/register" className="rounded-lg bg-ink px-4 py-2 font-medium text-white hover:bg-slate-700">
-                Học miễn phí
+              <NavLink to="/login" className="rounded-lg px-2 py-2 text-slate-700 hover:bg-slate-100 sm:px-3">Đăng nhập</NavLink>
+              <NavLink to="/register" className="rounded-lg bg-ink px-3 py-2 font-medium text-white hover:bg-slate-700 sm:px-4">
+                <span className="sm:hidden">Bắt đầu</span><span className="hidden sm:inline">Học miễn phí</span>
               </NavLink>
             </>
           )}
