@@ -44,7 +44,10 @@ export function MyLearningPage() {
               </div>
               <div className="mt-6 flex items-center justify-between gap-4">
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{status}</span>
-                <span className="text-right text-sm text-slate-500">Bài học đang được chuẩn bị</span>
+                <Link to={`/learn/${encodeURIComponent(course.slug)}`}
+                  className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                  Vào học
+                </Link>
               </div>
             </article>
           ))}

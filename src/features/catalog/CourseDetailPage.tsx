@@ -4,11 +4,14 @@ import { apiRequest, ApiError } from '../../lib/api'
 import type { CourseDetail } from '../../types/catalog'
 import { formatCourseDuration, formatCourseLevel, formatCoursePrice } from './catalogFormatters'
 import { EnrollmentButton } from '../learning/EnrollmentButton'
+import { CourseCurriculum as CurriculumList } from '../learning/CourseCurriculum'
+import type { CourseCurriculum } from '../../types/learning'
 
 export function CourseDetailPage() {
   const { slug } = useParams()
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [curriculum, setCurriculum] = useState<CourseCurriculum | null>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -17,6 +20,9 @@ export function CourseDetailPage() {
       .catch((caught: unknown) => setError(
         caught instanceof ApiError ? caught.message : 'Không thể tải thông tin khóa học.',
       ))
+    apiRequest<CourseCurriculum>(`/courses/${encodeURIComponent(slug)}/curriculum`)
+      .then(setCurriculum)
+      .catch(() => setCurriculum(null))
   }, [slug])
 
   if (error) {
@@ -53,6 +59,10 @@ export function CourseDetailPage() {
           <h2 className="text-2xl font-semibold">Bạn sẽ học được gì?</h2>
           <p className="mt-5 whitespace-pre-line text-lg leading-8 text-slate-600">{course.description}</p>
         </div>
+        {curriculum && <div className="mt-12 max-w-4xl">
+          <h2 className="mb-5 text-2xl font-semibold">Giáo trình khóa học</h2>
+          <CurriculumList curriculum={curriculum} />
+        </div>}
       </section>
     </main>
   )

@@ -8,6 +8,7 @@ import { CourseDetailPage } from '../features/catalog/CourseDetailPage'
 import { HomePage } from '../features/catalog/HomePage'
 import { DashboardPage } from '../features/learning/DashboardPage'
 import { MyLearningPage } from '../features/learning/MyLearningPage'
+import { LessonPlayerPage } from '../features/learning/LessonPlayerPage'
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="my-learning" element={<MyLearningPage />} />
+              <Route path="learn/:slug" element={<LessonPlayerPage />} />
             </Route>
           </Route>
         </Routes>
