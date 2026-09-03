@@ -5,6 +5,7 @@ import type { CourseCurriculum, LessonPlayer, LessonProgress } from '../../types
 import { useAuth } from '../auth/AuthContext'
 import { CourseCurriculum as CurriculumList } from './CourseCurriculum'
 import { LessonContentPlayer } from './LessonContentPlayer'
+import { LessonMentor } from './LessonMentor'
 
 export function LessonPlayerPage() {
   const { slug } = useParams()
@@ -76,10 +77,13 @@ export function LessonPlayerPage() {
             {progress?.completed && <p className="mt-3 font-medium text-emerald-700">Bạn đã hoàn thành bài học này.</p>}
           </>}
         </section>
-        <aside>
-          <h2 className="mb-4 text-xl font-semibold">{curriculum?.courseTitle ?? 'Nội dung khóa học'}</h2>
-          {curriculum && <CurriculumList curriculum={curriculum} activeLessonId={activeLessonId ?? undefined} onSelectLesson={setActiveLessonId} />}
-          {lessons.length === 0 && curriculum && <p className="text-sm text-slate-500">Giáo trình đang được cập nhật.</p>}
+        <aside className="space-y-7">
+          {slug && lesson && <LessonMentor courseSlug={slug} lessonId={lesson.lessonId} />}
+          <section>
+            <h2 className="mb-4 text-xl font-semibold">{curriculum?.courseTitle ?? 'Nội dung khóa học'}</h2>
+            {curriculum && <CurriculumList curriculum={curriculum} activeLessonId={activeLessonId ?? undefined} onSelectLesson={setActiveLessonId} />}
+            {lessons.length === 0 && curriculum && <p className="text-sm text-slate-500">Giáo trình đang được cập nhật.</p>}
+          </section>
         </aside>
       </div>
     </main>

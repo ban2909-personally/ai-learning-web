@@ -29,7 +29,7 @@ describe('LessonMediaManagerPage', () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 'instructor-1', email: 'teacher@example.com', displayName: 'Teacher', roles: ['INSTRUCTOR'] },
       accessToken: 'token', isLoading: false, request: vi.fn(), upload,
-      login: vi.fn(), register: vi.fn(), logout: vi.fn(),
+      stream: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(),
     })
 
     render(<MemoryRouter initialEntries={['/instructor/courses/spring/media']}><Routes>

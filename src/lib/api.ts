@@ -52,6 +52,73 @@ export async function apiRequest<T>(
   return (await response.json()) as T
 }
 
+export type ServerSentEvent = {
+  event: string
+  data: string
+}
+
+export async function apiStream(
+  path: string,
+  init: RequestInit,
+  accessToken: string,
+  onEvent: (event: ServerSentEvent) => void,
+): Promise<void> {
+  const headers = new Headers(init.headers)
+  headers.set('Content-Type', 'application/json')
+  headers.set('Accept', 'text/event-stream')
+  headers.set('Authorization', `Bearer ${accessToken}`)
+  const response = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers,
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    const problem = (await response.json().catch(() => ({}))) as ProblemDetail
+    throw new ApiError(
+      problem.detail ?? 'Không thể kết nối đến AI Mentor.',
+      response.status,
+      problem.code,
+      problem.fieldErrors,
+    )
+  }
+  if (!response.body) throw new ApiError('Trình duyệt không hỗ trợ nhận phản hồi trực tiếp.', 0)
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    buffer += decoder.decode(value, { stream: !done })
+    buffer = consumeSseBlocks(buffer, onEvent)
+    if (done) break
+  }
+  if (buffer.trim()) dispatchSseBlock(buffer, onEvent)
+}
+
+function consumeSseBlocks(buffer: string, onEvent: (event: ServerSentEvent) => void): string {
+  while (true) {
+    const lfBoundary = buffer.indexOf('\n\n')
+    const crlfBoundary = buffer.indexOf('\r\n\r\n')
+    const candidates = [lfBoundary, crlfBoundary].filter((index) => index >= 0)
+    if (candidates.length === 0) return buffer
+    const boundary = Math.min(...candidates)
+    const separatorLength = boundary === crlfBoundary ? 4 : 2
+    dispatchSseBlock(buffer.slice(0, boundary), onEvent)
+    buffer = buffer.slice(boundary + separatorLength)
+  }
+}
+
+function dispatchSseBlock(block: string, onEvent: (event: ServerSentEvent) => void) {
+  let event = 'message'
+  const data: string[] = []
+  block.replaceAll('\r\n', '\n').split('\n').forEach((line) => {
+    if (line.startsWith('event:')) event = line.slice('event:'.length).trim()
+    if (line.startsWith('data:')) data.push(line.slice('data:'.length).trimStart())
+  })
+  if (data.length > 0) onEvent({ event, data: data.join('\n') })
+}
+
 export function apiUpload<T>(
   path: string,
   body: FormData,
