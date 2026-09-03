@@ -29,7 +29,8 @@ describe('LessonPlayerPage', () => {
       .mockResolvedValueOnce({ lessonId: 'lesson-1', positionSeconds: 30, completed: false, updatedAt: '2026-08-30T00:00:00Z' })
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 'student-1', email: 'student@example.com', displayName: 'Student', roles: ['STUDENT'] },
-      accessToken: 'token', isLoading: false, request, login: vi.fn(), register: vi.fn(), logout: vi.fn(),
+      accessToken: 'token', isLoading: false, request, upload: vi.fn(),
+      login: vi.fn(), register: vi.fn(), logout: vi.fn(),
     })
 
     render(<MemoryRouter initialEntries={['/learn/spring']}><Routes>
