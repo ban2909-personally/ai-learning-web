@@ -10,6 +10,7 @@ vi.mock('../../lib/api', async (original) => {
   return { ...actual, apiRequest: vi.fn() }
 })
 vi.mock('../auth/AuthContext', () => ({ useAuth: vi.fn() }))
+vi.mock('./LessonMentor', () => ({ LessonMentor: () => <div>AI Mentor</div> }))
 
 describe('LessonPlayerPage', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -30,7 +31,7 @@ describe('LessonPlayerPage', () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 'student-1', email: 'student@example.com', displayName: 'Student', roles: ['STUDENT'] },
       accessToken: 'token', isLoading: false, request, upload: vi.fn(),
-      login: vi.fn(), register: vi.fn(), logout: vi.fn(),
+      stream: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(),
     })
 
     render(<MemoryRouter initialEntries={['/learn/spring']}><Routes>

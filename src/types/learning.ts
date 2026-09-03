@@ -59,3 +59,31 @@ export type LessonMedia = {
   etag: string
   contentUrl: string
 }
+
+export type MentorMessageRole = 'USER' | 'ASSISTANT'
+
+export type MentorMessage = {
+  id: string
+  role: MentorMessageRole
+  content: string
+  createdAt: string
+}
+
+export type MentorAcceptedEvent = {
+  message: MentorMessage
+  remainingQuota: number
+}
+
+export type MentorDeltaEvent = {
+  text: string
+}
+
+export type MentorCompletedEvent = {
+  message: MentorMessage
+  remainingQuota: number
+}
+
+export type MentorErrorEvent = {
+  code: string
+  detail: string
+}

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
-import { apiRequest, apiUpload, ApiError } from '../../lib/api'
+import { apiRequest, apiStream, apiUpload, ApiError, type ServerSentEvent } from '../../lib/api'
 import type { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth'
 
 type AuthContextValue = {
@@ -10,6 +10,7 @@ type AuthContextValue = {
   register: (input: RegisterInput) => Promise<void>
   logout: () => Promise<void>
   request: <T>(path: string, init?: RequestInit) => Promise<T>
+  stream: (path: string, init: RequestInit, onEvent: (event: ServerSentEvent) => void) => Promise<void>
   upload: <T>(path: string, body: FormData, onProgress: (percentage: number) => void) => Promise<T>
 }
 
@@ -87,6 +88,22 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [accessToken, refreshSession])
 
+  const stream = useCallback(async (
+    path: string,
+    init: RequestInit,
+    onEvent: (event: ServerSentEvent) => void,
+  ) => {
+    let token = accessToken
+    if (!token) token = (await refreshSession()).accessToken
+    try {
+      await apiStream(path, init, token, onEvent)
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 401) throw error
+      const session = await refreshSession()
+      await apiStream(path, init, session.accessToken, onEvent)
+    }
+  }, [accessToken, refreshSession])
+
   const value = useMemo<AuthContextValue>(() => ({
     user,
     accessToken,
@@ -95,8 +112,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     register,
     logout,
     request,
+    stream,
     upload,
-  }), [accessToken, isLoading, login, logout, register, request, upload, user])
+  }), [accessToken, isLoading, login, logout, register, request, stream, upload, user])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
