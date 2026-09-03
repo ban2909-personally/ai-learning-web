@@ -4,6 +4,7 @@ import { apiRequest, ApiError } from '../../lib/api'
 import type { CourseCurriculum, LessonPlayer, LessonProgress } from '../../types/learning'
 import { useAuth } from '../auth/AuthContext'
 import { CourseCurriculum as CurriculumList } from './CourseCurriculum'
+import { LessonContentPlayer } from './LessonContentPlayer'
 
 export function LessonPlayerPage() {
   const { slug } = useParams()
@@ -54,7 +55,11 @@ export function LessonPlayerPage() {
       <div className="mt-7 grid gap-7 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section>
           <div className="aspect-video overflow-hidden rounded-2xl bg-ink shadow-card">
-            {lesson?.contentUrl ? <iframe src={lesson.contentUrl} title={lesson.title} className="h-full w-full" allowFullScreen /> :
+            {lesson?.contentUrl ? <LessonContentPlayer
+              lesson={lesson}
+              resumeAt={progress?.positionSeconds ?? 0}
+              onPositionChange={setPosition}
+            /> :
               <div className="grid h-full place-items-center text-slate-300">Đang tải bài học...</div>}
           </div>
           {error && <div role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-700">{error}</div>}

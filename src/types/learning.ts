@@ -49,3 +49,13 @@ export type LessonProgress = {
   completed: boolean
   updatedAt: string | null
 }
+
+export type LessonMedia = {
+  courseId: string
+  courseSlug: string
+  lessonId: string
+  contentType: string
+  sizeBytes: number
+  etag: string
+  contentUrl: string
+}

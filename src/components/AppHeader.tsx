@@ -4,6 +4,7 @@ import { useAuth } from '../features/auth/AuthContext'
 export function AppHeader() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const canManageCourses = user?.roles.some((role) => role === 'INSTRUCTOR' || role === 'ADMIN') ?? false
 
   const signOut = async () => {
     await logout()
@@ -24,6 +25,11 @@ export function AppHeader() {
               <NavLink to="/my-learning" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
                 Không gian học
               </NavLink>
+              {canManageCourses && (
+                <NavLink to="/courses" className="hidden rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 lg:block">
+                  Quản lý nội dung
+                </NavLink>
+              )}
               <button onClick={signOut} className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
                 Đăng xuất
               </button>
