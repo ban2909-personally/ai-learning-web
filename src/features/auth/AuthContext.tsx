@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
-import { apiRequest, ApiError } from '../../lib/api'
+import { apiRequest, apiUpload, ApiError } from '../../lib/api'
 import type { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth'
 
 type AuthContextValue = {
@@ -10,6 +10,7 @@ type AuthContextValue = {
   register: (input: RegisterInput) => Promise<void>
   logout: () => Promise<void>
   request: <T>(path: string, init?: RequestInit) => Promise<T>
+  upload: <T>(path: string, body: FormData, onProgress: (percentage: number) => void) => Promise<T>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -70,6 +71,22 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [accessToken, refreshSession])
 
+  const upload = useCallback(async <T,>(
+    path: string,
+    body: FormData,
+    onProgress: (percentage: number) => void,
+  ) => {
+    let token = accessToken
+    if (!token) token = (await refreshSession()).accessToken
+    try {
+      return await apiUpload<T>(path, body, token, onProgress)
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 401) throw error
+      const session = await refreshSession()
+      return apiUpload<T>(path, body, session.accessToken, onProgress)
+    }
+  }, [accessToken, refreshSession])
+
   const value = useMemo<AuthContextValue>(() => ({
     user,
     accessToken,
@@ -78,7 +95,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     register,
     logout,
     request,
-  }), [accessToken, isLoading, login, logout, register, request, user])
+    upload,
+  }), [accessToken, isLoading, login, logout, register, request, upload, user])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

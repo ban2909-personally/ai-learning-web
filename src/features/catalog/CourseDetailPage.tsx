@@ -6,12 +6,15 @@ import { formatCourseDuration, formatCourseLevel, formatCoursePrice } from './ca
 import { EnrollmentButton } from '../learning/EnrollmentButton'
 import { CourseCurriculum as CurriculumList } from '../learning/CourseCurriculum'
 import type { CourseCurriculum } from '../../types/learning'
+import { useAuth } from '../auth/AuthContext'
 
 export function CourseDetailPage() {
   const { slug } = useParams()
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [curriculum, setCurriculum] = useState<CourseCurriculum | null>(null)
+  const { user } = useAuth()
+  const canManageCourses = user?.roles.some((role) => role === 'INSTRUCTOR' || role === 'ADMIN') ?? false
 
   useEffect(() => {
     if (!slug) return
@@ -50,6 +53,14 @@ export function CourseDetailPage() {
           <aside className="rounded-2xl bg-white p-7 text-ink shadow-2xl">
             <p className="text-3xl font-bold">{formatCoursePrice(course.price, course.currency)}</p>
             <EnrollmentButton courseSlug={course.slug} price={course.price} />
+            {canManageCourses && (
+              <Link
+                to={`/instructor/courses/${course.slug}/media`}
+                className="mt-3 block rounded-xl border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Quản lý video
+              </Link>
+            )}
             <p className="mt-4 text-center text-xs text-slate-500">Ghi danh miễn phí ngay; khóa trả phí cần hoàn tất checkout.</p>
           </aside>
         </div>
