@@ -31,6 +31,7 @@ describe('LessonPlayerPage', () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 'student-1', email: 'student@example.com', displayName: 'Student', roles: ['STUDENT'] },
       accessToken: 'token', isLoading: false, request, upload: vi.fn(),
+      getAccessToken: vi.fn().mockResolvedValue('token'),
       stream: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(),
     })
 

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { apiStream } from './api'
+import { apiStream, resolveWebSocketUrl } from './api'
 
 describe('apiStream', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -32,5 +32,11 @@ describe('apiStream', () => {
     const request = fetchMock.mock.calls[0][1] as RequestInit
     expect(new Headers(request.headers).get('Authorization')).toBe('Bearer access-token')
     expect(request.credentials).toBe('include')
+  })
+})
+
+describe('resolveWebSocketUrl', () => {
+  it('uses the API host without leaking credentials into the URL', () => {
+    expect(resolveWebSocketUrl('/ws/notifications')).toBe('ws://localhost:8080/ws/notifications')
   })
 })

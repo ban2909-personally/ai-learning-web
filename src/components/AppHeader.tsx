@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthContext'
+import { NotificationMenu } from '../features/notifications/NotificationMenu'
 
 export function AppHeader() {
   const { user, logout } = useAuth()
@@ -7,8 +8,11 @@ export function AppHeader() {
   const canManageCourses = user?.roles.some((role) => role === 'INSTRUCTOR' || role === 'ADMIN') ?? false
 
   const signOut = async () => {
-    await logout()
-    navigate('/')
+    try {
+      await logout()
+    } finally {
+      navigate('/')
+    }
   }
 
   return (
@@ -22,16 +26,19 @@ export function AppHeader() {
           <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink md:block">Khóa học</NavLink>
           {user ? (
             <>
-              <NavLink to="/my-learning" className="rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100">
-                Không gian học
+              <NotificationMenu />
+              <NavLink to="/my-learning" className="rounded-lg px-2 py-2 text-slate-700 hover:bg-slate-100 sm:px-3">
+                <span className="hidden sm:inline">Không gian học</span>
+                <span className="sm:hidden">Học</span>
               </NavLink>
               {canManageCourses && (
                 <NavLink to="/courses" className="hidden rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 lg:block">
                   Quản lý nội dung
                 </NavLink>
               )}
-              <button onClick={signOut} className="rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
-                Đăng xuất
+              <button onClick={signOut} className="rounded-lg border border-slate-200 px-2 py-2 hover:bg-slate-50 sm:px-3">
+                <span className="hidden sm:inline">Đăng xuất</span>
+                <span className="sm:hidden">Thoát</span>
               </button>
             </>
           ) : (

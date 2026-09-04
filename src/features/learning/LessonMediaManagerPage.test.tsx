@@ -29,6 +29,7 @@ describe('LessonMediaManagerPage', () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 'instructor-1', email: 'teacher@example.com', displayName: 'Teacher', roles: ['INSTRUCTOR'] },
       accessToken: 'token', isLoading: false, request: vi.fn(), upload,
+      getAccessToken: vi.fn().mockResolvedValue('token'),
       stream: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(),
     })
 

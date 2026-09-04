@@ -10,26 +10,29 @@ import { DashboardPage } from '../features/learning/DashboardPage'
 import { MyLearningPage } from '../features/learning/MyLearningPage'
 import { LessonPlayerPage } from '../features/learning/LessonPlayerPage'
 import { LessonMediaManagerPage } from '../features/learning/LessonMediaManagerPage'
+import { NotificationProvider } from '../features/notifications/NotificationContext'
 
 export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="courses" element={<CourseCatalogPage />} />
-            <Route path="courses/:slug" element={<CourseDetailPage />} />
-            <Route path="login" element={<AuthPage mode="login" />} />
-            <Route path="register" element={<AuthPage mode="register" />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="my-learning" element={<MyLearningPage />} />
-              <Route path="learn/:slug" element={<LessonPlayerPage />} />
-              <Route path="instructor/courses/:slug/media" element={<LessonMediaManagerPage />} />
+        <NotificationProvider>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="courses" element={<CourseCatalogPage />} />
+              <Route path="courses/:slug" element={<CourseDetailPage />} />
+              <Route path="login" element={<AuthPage mode="login" />} />
+              <Route path="register" element={<AuthPage mode="register" />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="my-learning" element={<MyLearningPage />} />
+                <Route path="learn/:slug" element={<LessonPlayerPage />} />
+                <Route path="instructor/courses/:slug/media" element={<LessonMediaManagerPage />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   )
