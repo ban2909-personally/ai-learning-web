@@ -34,7 +34,7 @@ The analytics projection intentionally contains stable identifiers and counts, n
 - Keep pure presentation formatting and enrollment-to-analytics joining in `src/features/analytics/learningAnalytics.ts`.
 - Keep data loading and page-state orchestration in `LearningInsightsPage`.
 - Reuse the refresh-aware authenticated `request` boundary from `AuthContext`.
-- Add a protected `/insights` route and an authenticated navigation entry.
+- Replace the placeholder at the existing protected `/dashboard` route and add an authenticated navigation entry; do not introduce a second route for the same concept.
 - Do not add a generic state library, chart dependency, API wrapper, or premature abstraction for this single read model.
 
 ## UX states and information hierarchy
