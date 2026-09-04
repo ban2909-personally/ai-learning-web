@@ -74,6 +74,7 @@ function authValue(
   return {
     user: { id: 'student-1', email: 'student@example.com', displayName: 'Student', roles: ['STUDENT'] },
     accessToken: 'token',
+    getAccessToken: vi.fn().mockResolvedValue('token'),
     isLoading: false,
     request: request as ReturnType<typeof useAuth>['request'],
     stream: stream as ReturnType<typeof useAuth>['stream'],

@@ -6,6 +6,15 @@ export function resolveApiUrl(path: string): string {
   return new URL(path, api.origin).toString()
 }
 
+export function resolveWebSocketUrl(path: string): string {
+  const api = new URL(API_URL, window.location.origin)
+  api.protocol = api.protocol === 'https:' ? 'wss:' : 'ws:'
+  api.pathname = path
+  api.search = ''
+  api.hash = ''
+  return api.toString()
+}
+
 type ProblemDetail = {
   detail?: string
   code?: string
