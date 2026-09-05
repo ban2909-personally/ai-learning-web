@@ -69,11 +69,11 @@ The analytics projection intentionally contains stable identifiers and counts, n
 - [x] Confirm API Phase 6.3 feature/main CI success and clean frontend `main`.
 - [x] Run baseline type-check, 19 unit/component tests, and production build.
 - [x] Record contract, component boundaries, UX states, security, performance, and responsive constraints before implementation.
-- [ ] Add analytics types plus pure formatting/join behavior with unit tests.
-- [ ] Add the protected responsive insights page with loading, error/retry, empty, fallback, and data states.
-- [ ] Add route and authenticated navigation without changing existing public routes.
-- [ ] Extend responsive browser smoke coverage to 320 px, 768 px, and 1440 px.
-- [ ] Run type-check, all component tests, production build, and Selenium smoke with no skipped gate.
-- [ ] Audit accessibility, token/identity leakage, unsafe rendering, request bounds, overflow, and diff formatting.
+- [x] Add analytics types plus pure formatting/join behavior with unit tests.
+- [x] Add the protected responsive insights page with loading, error/retry, empty, fallback, and data states.
+- [x] Add route and authenticated navigation without changing existing public routes.
+- [x] Extend responsive browser smoke coverage to 320 px, 768 px, and 1440 px.
+- [x] Run type-check, all component tests, production build, and Selenium smoke with no skipped gate.
+- [x] Audit accessibility, token/identity leakage, unsafe rendering, request bounds, overflow, and diff formatting.
 - [ ] Commit cohesive slices, push feature, require green feature CI, merge `main`, rerun all gates, push, and require green main CI.
-- [ ] Publish the Phase 6.4 development report with file, test, security, responsive, commit, and CI evidence.
+- [x] Publish the Phase 6.4 development report with file, test, security, responsive, commit, and CI evidence.
