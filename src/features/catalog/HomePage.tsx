@@ -1,44 +1,177 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const benefits = [
-  ['Lộ trình có mục tiêu', 'Biết chính xác nên học gì tiếp theo và vì sao.'],
-  ['Thực hành trong ngữ cảnh', 'Kết nối bài giảng với bài tập và dự án thực tế.'],
-  ['AI Mentor gợi mở', 'Nhận gợi ý để tự tìm ra lời giải thay vì chép đáp án.'],
-]
+import { apiRequest } from '../../lib/api'
+import type { CourseSummary, PageResponse } from '../../types/catalog'
+import { CourseCard } from './CourseCard'
 
 export function HomePage() {
+  const [courses, setCourses] = useState<CourseSummary[]>([])
+  useEffect(() => {
+    let active = true
+    apiRequest<PageResponse<CourseSummary>>('/courses?size=3')
+      .then((page) => {
+        if (active) setCourses(page.items)
+      })
+      .catch(() => {
+        /* Discovery remains available through the catalog page. */
+      })
+    return () => {
+      active = false
+    }
+  }, [])
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-slate-200 bg-white">
-        <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top_right,_rgba(23,166,115,0.18),_transparent_58%)]" />
-        <div className="relative mx-auto max-w-6xl px-5 py-24 sm:py-32">
-          <div className="max-w-3xl">
-            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">AI-powered learning</p>
-            <h1 className="text-4xl font-semibold leading-[1.08] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-              Học lập trình bằng cách hiểu, không phải ghi nhớ.
+      <section className="public-hero">
+        <div className="public-hero-grid">
+          <div>
+            <p className="eyebrow">HỌC CHỦ ĐỘNG · XÂY DỰNG TƯƠNG LAI</p>
+            <h1>
+              Học lập trình bằng cách hiểu,
+              <br />
+              <span>không phải ghi nhớ.</span>
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
-              Khóa học chuyên sâu, tiến độ rõ ràng và AI Mentor đồng hành trong từng bài học.
+            <p className="hero-description">
+              Biến kiến thức thành sản phẩm. Khóa học có lộ trình, thực hành
+              trong từng bài và AI Mentor đồng hành khi bạn cần gợi ý.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link to="/register" className="rounded-xl bg-ink px-6 py-3 font-semibold text-white hover:bg-slate-700">Bắt đầu học</Link>
-              <Link to="/courses" className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold hover:bg-slate-50">Xem khóa học</Link>
+            <div className="form-actions mt-8">
+              <Link to="/courses" className="primary-button px-6 py-3.5">
+                Khám phá khóa học →
+              </Link>
+              <Link to="/register" className="secondary-button px-6 py-3.5">
+                Bắt đầu học
+              </Link>
+            </div>
+            <div className="hero-topics">
+              <span>Java & Spring</span>
+              <span>React & TypeScript</span>
+              <span>AI & DevOps</span>
+            </div>
+          </div>
+          <div
+            className="hero-learning-art"
+            aria-label="Hành trình từ kiến thức đến sản phẩm"
+          >
+            <div className="code-window">
+              <div className="code-window-bar">
+                <i />
+                <i />
+                <i />
+                <span>your-learning-path.ts</span>
+              </div>
+              <pre>
+                <span className="text-violet-300">const</span> journey = {'{'}
+                <br /> goal:{' '}
+                <span className="text-emerald-300">
+                  'Build something meaningful'
+                </span>
+                ,<br /> steps: [<br />{' '}
+                <span className="text-blue-300">'Hiểu bản chất'</span>,<br />{' '}
+                <span className="text-blue-300">'Thực hành từng bước'</span>,
+                <br />{' '}
+                <span className="text-blue-300">'Tạo sản phẩm của bạn'</span>
+                <br /> ]<br />
+                {'}'}
+              </pre>
+            </div>
+            <div className="learning-art-note">
+              <span>✦</span>
+              <div>
+                <strong>Hiểu sâu hơn trong mỗi bài học</strong>
+                <p>Gợi mở tư duy · Thực hành · Ôn tập flashcard</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
-      <section id="features" className="mx-auto max-w-6xl px-5 py-20">
-        <div className="grid gap-5 md:grid-cols-3">
-          {benefits.map(([title, description], index) => (
-            <article key={title} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-card">
-              <span className="text-sm font-bold text-brand-600">0{index + 1}</span>
-              <h2 className="mt-5 text-xl font-semibold">{title}</h2>
-              <p className="mt-3 leading-7 text-slate-600">{description}</p>
-            </article>
-          ))}
+      <section className="page-container py-14">
+        <div className="page-heading">
+          <div>
+            <p className="eyebrow">LỘ TRÌNH DÀNH CHO BẠN</p>
+            <h2>Bắt đầu từ điều bạn muốn xây dựng</h2>
+          </div>
+          <Link className="text-button" to="/courses">
+            Xem khóa học →
+          </Link>
+        </div>
+        {courses.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {courses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        ) : (
+          <div className="quick-link-grid">
+            {[
+              [
+                'backend',
+                'Backend vững chắc',
+                'Java, API và kiến trúc ứng dụng',
+              ],
+              [
+                'frontend',
+                'Giao diện có trải nghiệm',
+                'React, TypeScript và responsive',
+              ],
+              [
+                'data-ai',
+                'Khám phá ứng dụng AI',
+                'Ngữ cảnh, dữ liệu và trợ lý thông minh',
+              ],
+            ].map(([slug, title, text]) => (
+              <Link
+                className="quick-link"
+                key={slug}
+                to={'/courses?category=' + slug}
+              >
+                <div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </div>
+                <span>→</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+      <section className="learning-method">
+        <div className="page-container py-14">
+          <p className="eyebrow">MỘT CÁCH HỌC RÕ RÀNG HƠN</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Từ “biết” đến “làm được”.
+          </h2>
+          <div className="quick-link-grid mt-8">
+            {[
+              [
+                '01',
+                'Lộ trình có mục tiêu',
+                'Biết nên học gì tiếp theo và theo dõi tiến độ qua từng bài.',
+              ],
+              [
+                '02',
+                'Thực hành trong ngữ cảnh',
+                'Kết nối kiến thức với ví dụ và những vấn đề thực tế.',
+              ],
+              [
+                '03',
+                'Ghi nhớ có chủ đích',
+                'Tự tạo flashcard, lật thẻ và kiểm tra điều mình đã hiểu.',
+              ],
+            ].map(([number, title, description]) => (
+              <article className="method-card" key={number}>
+                <span>{number}</span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
+      <footer className="site-footer">
+        <strong>AI Learning.</strong>
+        <span>Học sâu. Thực hành thật. Tiến bộ mỗi ngày.</span>
+        <Link to="/courses">Khám phá khóa học →</Link>
+      </footer>
     </main>
   )
 }
