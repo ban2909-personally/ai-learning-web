@@ -1,55 +1,96 @@
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthContext'
+import {
+  hasRole,
+  authorRoles,
+  reviewRoles,
+  workspaceRoles,
+  roleLabels,
+} from '../features/auth/roles'
 import { NotificationMenu } from '../features/notifications/NotificationMenu'
 
 export function AppHeader() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const canManageCourses = user?.roles.some((role) => role === 'INSTRUCTOR' || role === 'ADMIN') ?? false
-
+  const [open, setOpen] = useState(false)
+  const member = hasRole(user?.roles, workspaceRoles)
   const signOut = async () => {
     try {
       await logout()
     } finally {
+      setOpen(false)
       navigate('/')
     }
   }
-
   return (
-    <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight text-ink">
-          <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white">AI</span>
-          <span className="hidden sm:inline">Learning</span>
+    <header className="workspace-header">
+      <div className="workspace-header-inner">
+        <Link to="/" className="workspace-brand">
+          <span>AI</span>
+          <strong>
+            Learning<span className="brand-dot">.</span>
+          </strong>
         </Link>
-        <nav className="flex items-center gap-3 text-sm" aria-label="Điều hướng chính">
-          <NavLink to="/courses" className="hidden text-slate-600 hover:text-ink md:block">Khóa học</NavLink>
+        <button
+          className="mobile-menu-button"
+          aria-label="Mở điều hướng"
+          aria-expanded={open}
+          aria-controls="workspace-navigation"
+          onClick={() => setOpen(!open)}
+        >
+          ☰
+        </button>
+        <nav
+          id="workspace-navigation"
+          className={'workspace-navigation ' + (open ? 'is-open' : '')}
+          aria-label="Điều hướng chính"
+          onClick={() => setOpen(false)}
+        >
+          <NavLink end to="/">
+            Trang chủ
+          </NavLink>
+          <NavLink to="/courses">Khóa học</NavLink>
+          {member && (
+            <>
+              <NavLink to="/flashcards">Thẻ ghi nhớ</NavLink>
+              <NavLink to="/dashboard">Tổng quan</NavLink>
+              <NavLink to="/my-learning">Lớp học của tôi</NavLink>
+            </>
+          )}
+          {hasRole(user?.roles, [...authorRoles, ...reviewRoles]) && (
+            <NavLink to="/instructor/courses">Biên soạn</NavLink>
+          )}
+          {user?.roles.includes('ADMIN') && (
+            <NavLink to="/admin">Quản trị</NavLink>
+          )}
+        </nav>
+        <div className="header-account">
           {user ? (
             <>
-              <NotificationMenu />
-              <NavLink to="/dashboard" className="rounded-lg px-2 py-2 text-slate-700 hover:bg-slate-100 sm:px-3">
-                <span className="hidden sm:inline">Không gian học</span>
-                <span className="sm:hidden">Học</span>
-              </NavLink>
-              {canManageCourses && (
-                <NavLink to="/courses" className="hidden rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100 lg:block">
-                  Quản lý nội dung
-                </NavLink>
-              )}
-              <button onClick={signOut} className="rounded-lg border border-slate-200 px-2 py-2 hover:bg-slate-50 sm:px-3">
-                <span className="hidden sm:inline">Đăng xuất</span>
-                <span className="sm:hidden">Thoát</span>
+              {member && <NotificationMenu />}
+              <span className="account-avatar" aria-hidden="true">
+                {user.displayName.slice(0, 1).toUpperCase()}
+              </span>
+              <div className="account-label">
+                <strong>{user.displayName}</strong>
+                <small>{roleLabels[user.roles[0]] ?? 'Thành viên'}</small>
+              </div>
+              <button className="text-button" onClick={() => void signOut()}>
+                Đăng xuất
               </button>
             </>
           ) : (
             <>
-              <NavLink to="/login" className="rounded-lg px-2 py-2 text-slate-700 hover:bg-slate-100 sm:px-3">Đăng nhập</NavLink>
-              <NavLink to="/register" className="rounded-lg bg-ink px-3 py-2 font-medium text-white hover:bg-slate-700 sm:px-4">
-                <span className="sm:hidden">Bắt đầu</span><span className="hidden sm:inline">Học miễn phí</span>
+              <NavLink to="/login" className="text-button">
+                Đăng nhập
+              </NavLink>
+              <NavLink to="/register" className="primary-button">
+                Bắt đầu
               </NavLink>
             </>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   )

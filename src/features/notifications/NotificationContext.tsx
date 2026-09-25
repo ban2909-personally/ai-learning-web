@@ -10,8 +10,12 @@ import {
   type PropsWithChildren,
 } from 'react'
 import { resolveWebSocketUrl } from '../../lib/api'
-import type { NotificationItem, NotificationPage } from '../../types/notification'
+import type {
+  NotificationItem,
+  NotificationPage,
+} from '../../types/notification'
 import { useAuth } from '../auth/AuthContext'
+import { hasRole, workspaceRoles } from '../auth/roles'
 
 type NotificationContextValue = {
   notifications: NotificationItem[]
@@ -30,7 +34,10 @@ const PAGE_SIZE = 20
 const MAX_VISIBLE_NOTIFICATIONS = 100
 
 export function NotificationProvider({ children }: PropsWithChildren) {
-  const { user, request, getAccessToken } = useAuth()
+  const { user: authenticatedUser, request, getAccessToken } = useAuth()
+  const user = hasRole(authenticatedUser?.roles, workspaceRoles)
+    ? authenticatedUser
+    : null
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -42,7 +49,9 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const merge = useCallback((incoming: NotificationItem[]) => {
     setNotifications((current) => {
       const source = [...current, ...incoming]
-      const unique = new Map(source.map((notification) => [notification.id, notification]))
+      const unique = new Map(
+        source.map((notification) => [notification.id, notification]),
+      )
       const sorted = [...unique.values()]
         .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
         .slice(0, MAX_VISIBLE_NOTIFICATIONS)
@@ -51,11 +60,14 @@ export function NotificationProvider({ children }: PropsWithChildren) {
     })
   }, [])
 
-  const fetchPage = useCallback(async (before?: string, signal?: AbortSignal) => {
-    const query = new URLSearchParams({ limit: PAGE_SIZE.toString() })
-    if (before) query.set('before', before)
-    return request<NotificationPage>(`/me/notifications?${query}`, { signal })
-  }, [request])
+  const fetchPage = useCallback(
+    async (before?: string, signal?: AbortSignal) => {
+      const query = new URLSearchParams({ limit: PAGE_SIZE.toString() })
+      if (before) query.set('before', before)
+      return request<NotificationPage>(`/me/notifications?${query}`, { signal })
+    },
+    [request],
+  )
 
   const refresh = useCallback(async () => {
     if (!user) return
@@ -89,25 +101,34 @@ export function NotificationProvider({ children }: PropsWithChildren) {
     }
   }, [fetchPage, isLoading, merge, nextCursor, user])
 
-  const markRead = useCallback(async (notificationId: string) => {
-    try {
-      const updated = await request<NotificationItem>(`/me/notifications/${notificationId}/read`, {
-        method: 'PATCH',
-      })
-      setNotifications((current) => current.map((notification) =>
-        notification.id === updated.id ? updated : notification
-      ))
-      setUnreadCount((current) => {
-        const wasUnread = notifications.some((notification) =>
-          notification.id === updated.id && notification.readAt === null
+  const markRead = useCallback(
+    async (notificationId: string) => {
+      try {
+        const updated = await request<NotificationItem>(
+          `/me/notifications/${notificationId}/read`,
+          {
+            method: 'PATCH',
+          },
         )
-        return wasUnread ? Math.max(0, current - 1) : current
-      })
-    } catch (readError) {
-      setError(message(readError, 'Không thể đánh dấu thông báo đã đọc.'))
-      throw readError
-    }
-  }, [notifications, request])
+        setNotifications((current) =>
+          current.map((notification) =>
+            notification.id === updated.id ? updated : notification,
+          ),
+        )
+        setUnreadCount((current) => {
+          const wasUnread = notifications.some(
+            (notification) =>
+              notification.id === updated.id && notification.readAt === null,
+          )
+          return wasUnread ? Math.max(0, current - 1) : current
+        })
+      } catch (readError) {
+        setError(message(readError, 'Không thể đánh dấu thông báo đã đọc.'))
+        throw readError
+      }
+    },
+    [notifications, request],
+  )
 
   useEffect(() => {
     if (!user) {
@@ -149,7 +170,9 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       heartbeatOutgoing: 10_000,
       discardWebsocketOnCommFailure: true,
       beforeConnect: async () => {
-        client.connectHeaders = { Authorization: `Bearer ${await getAccessToken()}` }
+        client.connectHeaders = {
+          Authorization: `Bearer ${await getAccessToken()}`,
+        }
       },
       onConnect: () => {
         if (!active) return
@@ -171,7 +194,9 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       const incoming = parseNotification(frame.body)
       if (!incoming || knownIds.current.has(incoming.id)) return
       knownIds.current.add(incoming.id)
-      setNotifications((current) => [incoming, ...current].slice(0, MAX_VISIBLE_NOTIFICATIONS))
+      setNotifications((current) =>
+        [incoming, ...current].slice(0, MAX_VISIBLE_NOTIFICATIONS),
+      )
       if (incoming.readAt === null) setUnreadCount((current) => current + 1)
     }
 
@@ -183,33 +208,64 @@ export function NotificationProvider({ children }: PropsWithChildren) {
     }
   }, [fetchPage, getAccessToken, merge, user?.id])
 
-  const value = useMemo<NotificationContextValue>(() => ({
-    notifications,
-    unreadCount,
-    isLoading,
-    isConnected,
-    error,
-    hasMore: nextCursor !== null,
-    refresh,
-    loadMore,
-    markRead,
-  }), [error, isConnected, isLoading, loadMore, markRead, nextCursor, notifications, refresh, unreadCount])
+  const value = useMemo<NotificationContextValue>(
+    () => ({
+      notifications,
+      unreadCount,
+      isLoading,
+      isConnected,
+      error,
+      hasMore: nextCursor !== null,
+      refresh,
+      loadMore,
+      markRead,
+    }),
+    [
+      error,
+      isConnected,
+      isLoading,
+      loadMore,
+      markRead,
+      nextCursor,
+      notifications,
+      refresh,
+      unreadCount,
+    ],
+  )
 
-  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  )
 }
 
 export function useNotifications() {
   const context = useContext(NotificationContext)
-  if (!context) throw new Error('useNotifications must be used inside NotificationProvider')
+  if (!context)
+    throw new Error('useNotifications must be used inside NotificationProvider')
   return context
 }
 
 function parseNotification(value: string): NotificationItem | null {
   try {
     const parsed = JSON.parse(value) as Partial<NotificationItem>
-    if (typeof parsed.id !== 'string' || typeof parsed.title !== 'string' || typeof parsed.body !== 'string') return null
-    if (typeof parsed.targetPath !== 'string' || !/^\/(?!\/)/.test(parsed.targetPath)) return null
-    if (typeof parsed.createdAt !== 'string' || Number.isNaN(Date.parse(parsed.createdAt))) return null
+    if (
+      typeof parsed.id !== 'string' ||
+      typeof parsed.title !== 'string' ||
+      typeof parsed.body !== 'string'
+    )
+      return null
+    if (
+      typeof parsed.targetPath !== 'string' ||
+      !/^\/(?!\/)/.test(parsed.targetPath)
+    )
+      return null
+    if (
+      typeof parsed.createdAt !== 'string' ||
+      Number.isNaN(Date.parse(parsed.createdAt))
+    )
+      return null
     if (parsed.readAt !== null && typeof parsed.readAt !== 'string') return null
     if (parsed.type !== 'LESSON_COMPLETED') return null
     return parsed as NotificationItem
