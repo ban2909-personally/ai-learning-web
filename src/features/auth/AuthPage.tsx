@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../lib/api'
 import { useAuth } from './AuthContext'
-import { landingPage } from './roles'
 
 type AuthPageProps = { mode: 'login' | 'register' }
 
@@ -14,7 +13,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   const [isSubmitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (user) return <Navigate to={landingPage(user.roles)} replace />
+  if (user) return <Navigate to="/" replace />
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -35,7 +34,7 @@ export function AuthPage({ mode }: AuthPageProps) {
         await login(credentials)
       }
       const destination =
-        (location.state as { from?: string } | null)?.from ?? '/dashboard'
+        (location.state as { from?: string } | null)?.from ?? '/'
       navigate(destination, { replace: true })
     } catch (caught) {
       setError(
