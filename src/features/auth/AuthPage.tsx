@@ -48,21 +48,35 @@ export function AuthPage({ mode }: AuthPageProps) {
   }
 
   return (
-    <main className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-12 px-5 py-12 lg:grid-cols-2">
-      <section className="hidden lg:block">
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-brand-700">
-          Học sâu hơn với AI
-        </p>
-        <h1 className="max-w-xl text-5xl font-semibold leading-tight tracking-tight">
-          Không chỉ xem bài giảng. Hãy thực sự hiểu cách code vận hành.
+    <main className="auth-shell">
+      <section className="auth-story">
+        <span className="auth-story-tag">
+          <i /> CỘNG ĐỒNG HỌC TẬP DÀNH CHO BẠN
+        </span>
+        <h1>
+          Học hỏi, kết nối và <em>tiến bộ mỗi ngày.</em>
         </h1>
-        <p className="mt-6 max-w-lg text-lg leading-8 text-slate-600">
-          Lộ trình có cấu trúc, bài tập thực hành và AI Mentor luôn giữ bạn ở
-          đúng hướng tư duy.
+        <p>
+          Từ một câu hỏi nhỏ đến một kỹ năng mới — hành trình học tập thú vị hơn
+          khi có người đồng hành.
         </p>
+        <div className="auth-story-card" aria-hidden="true">
+          <span className="auth-story-avatar">A</span>
+          <div>
+            <strong>Mỗi ngày một điều mới</strong>
+            <small>Khám phá câu chuyện từ cộng đồng</small>
+          </div>
+          <span className="auth-story-spark">✦</span>
+        </div>
+        <div className="auth-story-benefits">
+          <span>✓ Chia sẻ kiến thức</span>
+          <span>✓ Học theo lộ trình</span>
+          <span>✓ Kết nối hội nhóm</span>
+        </div>
       </section>
 
-      <section className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-card sm:p-9">
+      <section className="auth-form-card">
+        <span className="auth-form-eyebrow">AI LEARNING</span>
         <h2 className="text-2xl font-semibold">
           {isRegister ? 'Tạo tài khoản học viên' : 'Chào mừng bạn quay lại'}
         </h2>

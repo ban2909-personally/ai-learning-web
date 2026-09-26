@@ -45,6 +45,14 @@ export async function apiRequest<T>(
     ...init,
     headers,
     credentials: 'include',
+  }).catch((cause: unknown) => {
+    if (cause instanceof TypeError) {
+      throw new ApiError(
+        'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.',
+        0,
+      )
+    }
+    throw cause
   })
 
   if (!response.ok) {
@@ -91,7 +99,8 @@ export async function apiStream(
       problem.fieldErrors,
     )
   }
-  if (!response.body) throw new ApiError('Trình duyệt không hỗ trợ nhận phản hồi trực tiếp.', 0)
+  if (!response.body)
+    throw new ApiError('Trình duyệt không hỗ trợ nhận phản hồi trực tiếp.', 0)
 
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
@@ -105,7 +114,10 @@ export async function apiStream(
   if (buffer.trim()) dispatchSseBlock(buffer, onEvent)
 }
 
-function consumeSseBlocks(buffer: string, onEvent: (event: ServerSentEvent) => void): string {
+function consumeSseBlocks(
+  buffer: string,
+  onEvent: (event: ServerSentEvent) => void,
+): string {
   while (true) {
     const lfBoundary = buffer.indexOf('\n\n')
     const crlfBoundary = buffer.indexOf('\r\n\r\n')
@@ -118,13 +130,20 @@ function consumeSseBlocks(buffer: string, onEvent: (event: ServerSentEvent) => v
   }
 }
 
-function dispatchSseBlock(block: string, onEvent: (event: ServerSentEvent) => void) {
+function dispatchSseBlock(
+  block: string,
+  onEvent: (event: ServerSentEvent) => void,
+) {
   let event = 'message'
   const data: string[] = []
-  block.replaceAll('\r\n', '\n').split('\n').forEach((line) => {
-    if (line.startsWith('event:')) event = line.slice('event:'.length).trim()
-    if (line.startsWith('data:')) data.push(line.slice('data:'.length).trimStart())
-  })
+  block
+    .replaceAll('\r\n', '\n')
+    .split('\n')
+    .forEach((line) => {
+      if (line.startsWith('event:')) event = line.slice('event:'.length).trim()
+      if (line.startsWith('data:'))
+        data.push(line.slice('data:'.length).trimStart())
+    })
   if (data.length > 0) onEvent({ event, data: data.join('\n') })
 }
 
@@ -140,7 +159,8 @@ export function apiUpload<T>(
     request.withCredentials = true
     request.setRequestHeader('Authorization', `Bearer ${accessToken}`)
     request.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100))
+      if (event.lengthComputable)
+        onProgress(Math.round((event.loaded / event.total) * 100))
     })
     request.addEventListener('load', () => {
       const response = parseJson(request.responseText)
@@ -149,16 +169,18 @@ export function apiUpload<T>(
         return
       }
       const problem = response as ProblemDetail
-      reject(new ApiError(
-        problem.detail ?? 'Không thể tải nội dung lên hệ thống.',
-        request.status,
-        problem.code,
-        problem.fieldErrors,
-      ))
+      reject(
+        new ApiError(
+          problem.detail ?? 'Không thể tải nội dung lên hệ thống.',
+          request.status,
+          problem.code,
+          problem.fieldErrors,
+        ),
+      )
     })
-    request.addEventListener('error', () => reject(
-      new ApiError('Không thể kết nối đến hệ thống.', 0),
-    ))
+    request.addEventListener('error', () =>
+      reject(new ApiError('Không thể kết nối đến hệ thống.', 0)),
+    )
     request.send(body)
   })
 }

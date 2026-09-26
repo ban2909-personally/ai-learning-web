@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { CommunityFeed } from './CommunityFeed'
+import { CommunityIcon } from './CommunityIcon'
 import { useCommunityApi } from './useCommunityApi'
 import type { Space } from './types'
 
@@ -22,22 +23,22 @@ export function CommunityHomePage() {
       >
         <div className="community-side-title">Không gian của bạn</div>
         <Link to="/">
-          ⌂ <span>Bảng tin</span>
+          <CommunityIcon name="feed" /> <span>Bảng tin</span>
         </Link>
         <Link to="/community/spaces">
-          ♧ <span>Hội nhóm & trang</span>
+          <CommunityIcon name="spaces" /> <span>Hội nhóm & trang</span>
         </Link>
         <Link to="/courses">
-          ◫ <span>Khóa học</span>
+          <CommunityIcon name="courses" /> <span>Khóa học</span>
         </Link>
         {user && (
           <>
             <div className="community-side-title">Học tập</div>
             <Link to="/flashcards">
-              ◇ <span>Thẻ ghi nhớ</span>
+              <CommunityIcon name="cards" /> <span>Thẻ ghi nhớ</span>
             </Link>
             <Link to="/my-learning">
-              ▤ <span>Lớp học của tôi</span>
+              <CommunityIcon name="classes" /> <span>Lớp học của tôi</span>
             </Link>
           </>
         )}
@@ -47,19 +48,50 @@ export function CommunityHomePage() {
       </aside>
       <div className="community-main">
         <div className="community-hero">
-          <span className="community-eyebrow">AI LEARNING COMMUNITY</span>
-          <h1>
-            Học cùng nhau,
-            <br />
-            <em>tiến xa hơn.</em>
-          </h1>
-          <p>
-            Chia sẻ điều bạn biết. Hỏi điều bạn chưa rõ. Tìm cộng đồng cùng đam
-            mê.
-          </p>
-          <Link to="/community/spaces">
-            Khám phá hội nhóm <span aria-hidden="true">→</span>
-          </Link>
+          <div className="community-hero-copy">
+            <span className="community-eyebrow">
+              <i /> CỘNG ĐỒNG HỌC TẬP MỞ
+            </span>
+            <h1>
+              Học cùng nhau,
+              <br />
+              <em>tiến xa hơn.</em>
+            </h1>
+            <p>
+              Kết nối những người ham học. Chia sẻ kiến thức, đặt câu hỏi và tìm
+              cảm hứng mỗi ngày.
+            </p>
+            <div className="community-hero-actions">
+              <Link to="/community/spaces">
+                Khám phá hội nhóm <span aria-hidden="true">↗</span>
+              </Link>
+              <Link to="/courses">
+                Xem khóa học <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+          <div className="community-hero-visual" aria-hidden="true">
+            <div className="hero-orbit hero-orbit-one" />
+            <div className="hero-orbit hero-orbit-two" />
+            <div className="hero-signal-card">
+              <span className="hero-signal-icon">
+                <CommunityIcon name="spaces" />
+              </span>
+              <span>
+                <strong>Cùng khám phá</strong>
+                <small>Ý tưởng mới mỗi ngày</small>
+              </span>
+            </div>
+            <div className="hero-visual-avatar avatar-one">A</div>
+            <div className="hero-visual-avatar avatar-two">K</div>
+            <div className="hero-visual-avatar avatar-three">M</div>
+            <div className="hero-visual-core">
+              <CommunityIcon name="courses" />
+            </div>
+            <div className="hero-visual-tag">
+              <span /> Kết nối tri thức
+            </div>
+          </div>
         </div>
         <div className="community-section-heading">
           <div>
@@ -87,7 +119,11 @@ export function CommunityHomePage() {
             to={`/community/spaces/${space.id}`}
             key={space.id}
           >
-            <span>{space.kind === 'GROUP' ? '♧' : '▣'}</span>
+            <span>
+              <CommunityIcon
+                name={space.kind === 'GROUP' ? 'spaces' : 'page'}
+              />
+            </span>
             <span>
               <strong>{space.name}</strong>
               <small>

@@ -66,6 +66,29 @@ describe('CommunityHomePage', () => {
     expect(await screen.findByText('Chưa có bài viết nào.')).toBeInTheDocument()
   })
 
+  it('offers a retry when the feed cannot be loaded', async () => {
+    let feedAttempts = 0
+    mocks.read.mockImplementation((path: string) => {
+      if (path === '/community/spaces') return Promise.resolve([])
+      feedAttempts += 1
+      return feedAttempts === 1
+        ? Promise.reject(new Error('Không thể kết nối đến máy chủ.'))
+        : Promise.resolve({ posts: [], nextCursor: null })
+    })
+    render(
+      <MemoryRouter>
+        <CommunityHomePage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      await screen.findByText('Chưa tải được bảng tin'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Chưa có bài viết nào.')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
+    expect(await screen.findByText('Chưa có bài viết nào.')).toBeInTheDocument()
+  })
+
   it('lets an authenticated guest publish to the public feed', async () => {
     mocks.user = {
       id: 'guest-id',
