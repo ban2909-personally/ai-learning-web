@@ -65,10 +65,13 @@ async function login(role, destination) {
     .sendKeys(role + '@demo.local')
   await browser.findElement(By.css('input[name="password"]')).sendKeys('123456')
   await browser.findElement(By.css('form button[type="submit"]')).click()
-  await browser.wait(until.urlContains(destination), 10000)
+  await browser.wait(until.urlIs(base + '/'), 10000)
+  await browser.wait(until.elementLocated(By.css('.community-hero h1')), 10000)
+  await noHorizontalOverflow()
+  await browser.get(base + destination)
   await browser.wait(until.elementLocated(By.css('h1')), 10000)
   await noHorizontalOverflow()
-  process.stdout.write(role + ' → ' + destination + '\n')
+  process.stdout.write(role + ' → homepage → ' + destination + '\n')
 }
 
 try {
@@ -106,8 +109,11 @@ try {
   )
   assert.equal(
     await browser
-      .findElement(
-        By.css('form select[name="categoryId"] option:not([disabled])'),
+      .wait(
+        until.elementLocated(
+          By.css('form select[name="categoryId"] option:not([disabled])'),
+        ),
+        10000,
       )
       .isDisplayed(),
     true,

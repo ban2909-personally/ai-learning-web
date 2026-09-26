@@ -79,14 +79,16 @@ try {
     await driver.wait(until.elementLocated(By.css('h1')), 5000)
     assert.match(
       await driver.findElement(By.css('h1')).getText(),
-      /Học lập trình/,
+      /Học cùng nhau/,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'home')
   }
 
-  await driver.findElement(By.css('a.primary-button[href="/courses"]')).click()
-  await driver.wait(until.urlContains('/courses'), 5000)
-  assert.equal((await driver.getCurrentUrl()).endsWith('/courses'), true)
+  const spacesLink = await driver.findElement(By.css('.community-hero a[href="/community/spaces"]'))
+  await driver.get(await spacesLink.getAttribute('href'))
+  await driver.wait(until.urlContains('/community/spaces'), 5000)
+  const spacesHeading = await driver.wait(until.elementLocated(By.css('h1')), 5000)
+  assert.match(await spacesHeading.getText(), /Hội nhóm & trang/)
 
   await installAuthenticatedApiFixture(driver)
   for (const viewport of [

@@ -50,6 +50,7 @@ export function AppHeader() {
           <NavLink end to="/">
             Trang chủ
           </NavLink>
+          <NavLink to="/community/spaces">Hội nhóm</NavLink>
           <NavLink to="/courses">Khóa học</NavLink>
           {member && (
             <>
