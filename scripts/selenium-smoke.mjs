@@ -82,12 +82,28 @@ try {
       /Học cùng nhau/,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'home')
+    await driver.get(`${baseUrl}/login`)
+    await driver.wait(until.elementLocated(By.css('input[name="email"]')), 5000)
+    await assertNoHorizontalOverflow(driver, viewport.width, 'login')
+    await driver.get(`${baseUrl}/register`)
+    await driver.wait(
+      until.elementLocated(By.css('input[name="displayName"]')),
+      5000,
+    )
+    await assertNoHorizontalOverflow(driver, viewport.width, 'register')
   }
 
-  const spacesLink = await driver.findElement(By.css('.community-hero a[href="/community/spaces"]'))
+  await driver.get(baseUrl)
+  const spacesLink = await driver.wait(
+    until.elementLocated(By.css('.community-hero a[href="/community/spaces"]')),
+    5000,
+  )
   await driver.get(await spacesLink.getAttribute('href'))
   await driver.wait(until.urlContains('/community/spaces'), 5000)
-  const spacesHeading = await driver.wait(until.elementLocated(By.css('h1')), 5000)
+  const spacesHeading = await driver.wait(
+    until.elementLocated(By.css('h1')),
+    5000,
+  )
   assert.match(await spacesHeading.getText(), /Hội nhóm & trang/)
 
   await installAuthenticatedApiFixture(driver)

@@ -4,13 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#17202A',
+        ink: '#17243d',
         brand: {
-          50: '#eefbf7',
-          100: '#d5f5e9',
-          500: '#17a673',
-          600: '#0c855d',
-          700: '#0a6b4d',
+          50: '#f0f5ff',
+          100: '#dfeaff',
+          500: '#3b68ee',
+          600: '#2854d6',
+          700: '#203faa',
         },
       },
       boxShadow: {

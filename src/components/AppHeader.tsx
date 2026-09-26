@@ -39,7 +39,18 @@ export function AppHeader() {
           aria-controls="workspace-navigation"
           onClick={() => setOpen(!open)}
         >
-          ☰
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <path
+              d={open ? 'M5 5l14 14M19 5 5 19' : 'M4 7h16M4 12h16M4 17h16'}
+            />
+          </svg>
         </button>
         <nav
           id="workspace-navigation"

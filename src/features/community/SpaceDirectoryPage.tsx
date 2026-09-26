@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useCommunityApi } from './useCommunityApi'
+import { CommunityIcon } from './CommunityIcon'
 import type { Space } from './types'
 
 export function SpaceDirectoryPage() {
@@ -218,7 +219,9 @@ export function SpaceDirectoryPage() {
             className="community-card community-space-card"
           >
             <span className="community-space-icon">
-              {space.kind === 'GROUP' ? '♧' : '▣'}
+              <CommunityIcon
+                name={space.kind === 'GROUP' ? 'spaces' : 'page'}
+              />
             </span>
             <small>
               {space.kind === 'GROUP' ? 'HỘI NHÓM' : 'TRANG'} ·{' '}

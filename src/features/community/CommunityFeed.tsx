@@ -159,13 +159,27 @@ export function CommunityFeed({
             </Link>
           </div>
         ))}
-      {error && (
+      {error && posts.length > 0 && (
         <p className="community-error" role="alert">
           {error}
         </p>
       )}
       {loading ? (
         <p className="community-muted">Đang tải bảng tin…</p>
+      ) : error && posts.length === 0 ? (
+        <div className="community-card community-unavailable" role="alert">
+          <strong>Chưa tải được bảng tin</strong>
+          <p>{error}</p>
+          <button
+            className="community-more"
+            onClick={() => {
+              setLoading(true)
+              void load()
+            }}
+          >
+            Thử lại
+          </button>
+        </div>
       ) : posts.length === 0 ? (
         <div className="community-card community-empty">
           <strong>Chưa có bài viết nào.</strong>
