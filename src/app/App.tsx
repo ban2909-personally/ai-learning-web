@@ -89,6 +89,26 @@ const FlashcardsPage = lazy(() =>
     default: module.FlashcardsPage,
   })),
 )
+const PracticeCatalogPage = lazy(() =>
+  import('../features/practice/PracticeCatalogPage').then((module) => ({
+    default: module.PracticeCatalogPage,
+  })),
+)
+const PracticeExamPage = lazy(() =>
+  import('../features/practice/PracticeExamPage').then((module) => ({
+    default: module.PracticeExamPage,
+  })),
+)
+const PracticeAttemptPage = lazy(() =>
+  import('../features/practice/PracticeAttemptPage').then((module) => ({
+    default: module.PracticeAttemptPage,
+  })),
+)
+const PracticeResultPage = lazy(() =>
+  import('../features/practice/PracticeResultPage').then((module) => ({
+    default: module.PracticeResultPage,
+  })),
+)
 
 export function App() {
   return (
@@ -113,12 +133,25 @@ export function App() {
                 />
                 <Route path="courses" element={<CourseCatalogPage />} />
                 <Route path="courses/:slug" element={<CourseDetailPage />} />
+                <Route path="practice" element={<PracticeCatalogPage />} />
+                <Route
+                  path="practice/exams/:slug"
+                  element={<PracticeExamPage />}
+                />
                 <Route path="login" element={<AuthPage mode="login" />} />
                 <Route path="register" element={<AuthPage mode="register" />} />
                 <Route element={<ProtectedRoute />}>
                   <Route path="dashboard" element={<DashboardRoute />} />
                 </Route>
                 <Route element={<RoleRoute roles={workspaceRoles} />}>
+                  <Route
+                    path="practice/attempts/:id"
+                    element={<PracticeAttemptPage />}
+                  />
+                  <Route
+                    path="practice/attempts/:id/result"
+                    element={<PracticeResultPage />}
+                  />
                   <Route path="my-learning" element={<MyLearningPage />} />
                   <Route path="learn/:slug" element={<LessonPlayerPage />} />
                   <Route path="flashcards" element={<FlashcardsPage />} />

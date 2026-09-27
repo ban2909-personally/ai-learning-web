@@ -63,6 +63,7 @@ try {
   if (localDriver)
     builder.setChromeService(new chrome.ServiceBuilder(localDriver))
   driver = await builder.build()
+  await installPracticeApiFixture(driver)
 
   for (const viewport of [
     { width: 320, height: 700 },
@@ -91,6 +92,16 @@ try {
       5000,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'register')
+    await driver.get(`${baseUrl}/practice`)
+    await driver.wait(until.elementLocated(By.css('.practice-exam-card')), 5000)
+    await assertNoHorizontalOverflow(driver, viewport.width, 'practice catalog')
+    await driver.get(`${baseUrl}/practice/exams/english-workplace-starter`)
+    await driver.wait(until.elementLocated(By.css('.practice-intro h1')), 5000)
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'practice exam intro',
+    )
   }
 
   await driver.get(baseUrl)
@@ -234,6 +245,79 @@ async function installAuthenticatedApiFixture(driver) {
         }));
       }
       return originalFetch(input, init);
+    };
+  `
+  await driver.sendDevToolsCommand('Page.addScriptToEvaluateOnNewDocument', {
+    source: fixtureSource,
+  })
+}
+
+async function installPracticeApiFixture(driver) {
+  const exam = {
+    slug: 'english-workplace-starter',
+    title: 'English Workplace Starter',
+    description: 'Luyện nghe, đọc và viết trong tình huống công việc.',
+    durationMinutes: 35,
+    sections: [
+      {
+        id: 'part-listening',
+        skill: 'LISTENING',
+        title: 'Workplace announcement',
+        passage: null,
+        audioText: 'The meeting starts at nine.',
+        questions: [
+          {
+            id: 'question-1',
+            kind: 'CHOICE',
+            prompt: 'When?',
+            options: ['Nine', 'Ten'],
+          },
+        ],
+      },
+      {
+        id: 'part-reading',
+        skill: 'READING',
+        title: 'Email',
+        passage: 'Please send your notes by Friday.',
+        audioText: null,
+        questions: [
+          {
+            id: 'question-2',
+            kind: 'CHOICE',
+            prompt: 'When?',
+            options: ['Friday', 'Monday'],
+          },
+        ],
+      },
+      {
+        id: 'part-writing',
+        skill: 'WRITING',
+        title: 'Reply',
+        passage: 'Suggest a topic for a workshop.',
+        audioText: null,
+        questions: [
+          {
+            id: 'question-3',
+            kind: 'WRITING',
+            prompt: 'Write a short email.',
+            options: [],
+          },
+        ],
+      },
+    ],
+  }
+  const fixtureSource = `
+    const practiceFetch = window.fetch.bind(window);
+    const practiceExam = ${JSON.stringify(exam)};
+    window.fetch = (input, init) => {
+      const url = new URL(typeof input === 'string' ? input : input.url, window.location.origin);
+      if (url.pathname === '/api/v1/practice/exams') {
+        return Promise.resolve(new Response(JSON.stringify([{...practiceExam, skills: ['LISTENING', 'READING', 'WRITING']}]), {status: 200}));
+      }
+      if (url.pathname === '/api/v1/practice/exams/english-workplace-starter') {
+        return Promise.resolve(new Response(JSON.stringify(practiceExam), {status: 200}));
+      }
+      return practiceFetch(input, init);
     };
   `
   await driver.sendDevToolsCommand('Page.addScriptToEvaluateOnNewDocument', {
