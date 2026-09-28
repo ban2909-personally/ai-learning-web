@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthContext'
 import {
   hasRole,
@@ -13,7 +13,32 @@ import { NotificationMenu } from '../features/notifications/NotificationMenu'
 export function AppHeader() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const staffMenu = useRef<HTMLDetailsElement>(null)
   const [open, setOpen] = useState(false)
+  useEffect(() => {
+    staffMenu.current?.removeAttribute('open')
+    setOpen(false)
+  }, [location.pathname])
+  useEffect(() => {
+    const dismiss = (event: MouseEvent) => {
+      if (!staffMenu.current?.contains(event.target as Node)) {
+        staffMenu.current?.removeAttribute('open')
+      }
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        staffMenu.current?.removeAttribute('open')
+        setOpen(false)
+      }
+    }
+    document.addEventListener('click', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('click', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [])
   const member = hasRole(user?.roles, workspaceRoles)
   const signOut = async () => {
     try {
@@ -56,7 +81,9 @@ export function AppHeader() {
           id="workspace-navigation"
           className={'workspace-navigation ' + (open ? 'is-open' : '')}
           aria-label="Điều hướng chính"
-          onClick={() => setOpen(false)}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest('a')) setOpen(false)
+          }}
         >
           <NavLink end to="/">
             Trang chủ
@@ -72,10 +99,18 @@ export function AppHeader() {
             </>
           )}
           {hasRole(user?.roles, [...authorRoles, ...reviewRoles]) && (
-            <>
-              <NavLink to="/instructor/courses">Biên soạn</NavLink>
-              <NavLink to="/instructor/writing-reviews">Chấm bài viết</NavLink>
-            </>
+            <details className="staff-navigation" ref={staffMenu}>
+              <summary>
+                Kho học liệu <span aria-hidden="true">⌄</span>
+              </summary>
+              <div className="staff-navigation-menu">
+                <NavLink to="/instructor/courses">Biên soạn khóa học</NavLink>
+                <NavLink to="/instructor/exams">Soạn và duyệt đề thi</NavLink>
+                <NavLink to="/instructor/writing-reviews">
+                  Chấm bài viết
+                </NavLink>
+              </div>
+            </details>
           )}
           {user?.roles.includes('ADMIN') && (
             <NavLink to="/admin">Quản trị</NavLink>

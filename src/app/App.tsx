@@ -114,6 +114,16 @@ const PracticeWritingReviewPage = lazy(() =>
     default: module.PracticeWritingReviewPage,
   })),
 )
+const ExamStudioPage = lazy(() =>
+  import('../features/exam-authoring/ExamStudioPage').then((module) => ({
+    default: module.ExamStudioPage,
+  })),
+)
+const ExamEditorPage = lazy(() =>
+  import('../features/exam-authoring/ExamEditorPage').then((module) => ({
+    default: module.ExamEditorPage,
+  })),
+)
 
 export function App() {
   return (
@@ -173,6 +183,11 @@ export function App() {
                   <Route
                     path="instructor/writing-reviews"
                     element={<PracticeWritingReviewPage />}
+                  />
+                  <Route path="instructor/exams" element={<ExamStudioPage />} />
+                  <Route
+                    path="instructor/exams/:id"
+                    element={<ExamEditorPage />}
                   />
                 </Route>
                 <Route element={<RoleRoute roles={authorRoles} />}>

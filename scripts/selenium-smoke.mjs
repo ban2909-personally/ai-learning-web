@@ -179,6 +179,20 @@ try {
       4,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'writing review')
+    await driver.get(`${baseUrl}/instructor/exams`)
+    await driver.wait(until.elementLocated(By.css('.exam-revision-card')), 5000)
+    await assertNoHorizontalOverflow(driver, viewport.width, 'exam studio')
+    await driver.get(`${baseUrl}/instructor/exams/exam-editor`)
+    await driver.wait(
+      until.elementLocated(By.css('.exam-question-editor')),
+      5000,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.exam-question-editor textarea')))
+        .length,
+      2,
+    )
+    await assertNoHorizontalOverflow(driver, viewport.width, 'exam editor')
   }
 } finally {
   if (driver) await driver.quit()
@@ -270,6 +284,49 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
         submittedAt: '2026-09-27T10:00:00Z',
       },
     ],
+    '/api/v1/practice/authoring/exams?page=0': [
+      {
+        id: 'exam-editor',
+        slug: 'english-email',
+        title: 'English Email Practice',
+        durationMinutes: 20,
+        revision: 1,
+        status: 'DRAFT',
+        version: 0,
+      },
+    ],
+    '/api/v1/practice/authoring/exams/exam-editor': {
+      id: 'exam-editor',
+      seriesId: 'series-editor',
+      authorId: session.user.id,
+      revision: 1,
+      status: 'DRAFT',
+      version: 0,
+      exam: {
+        id: 'exam-editor',
+        slug: 'english-email',
+        title: 'English Email Practice',
+        description: 'Original workplace English questions.',
+        durationMinutes: 20,
+        sections: [
+          {
+            skill: 'READING',
+            title: 'An email',
+            passage: 'The meeting is Tuesday.',
+            audioText: null,
+            questions: [
+              {
+                kind: 'TEXT',
+                prompt: 'When is the meeting?',
+                options: [],
+                correctAnswer: 'Tuesday',
+                explanation: 'The email names Tuesday.',
+              },
+            ],
+          },
+        ],
+      },
+    },
   }
   const fixtureSource = `
     (() => {
