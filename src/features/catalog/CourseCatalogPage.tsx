@@ -64,11 +64,11 @@ export function CourseCatalogPage() {
             Course catalog
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Chọn kỹ năng tiếp theo của bạn
+            Chọn kỹ năng tiếng Anh tiếp theo của bạn
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-            Khóa học thực hành, có lộ trình rõ và AI Mentor đồng hành theo ngữ
-            cảnh bài học.
+            Luyện Nghe, Đọc, Viết theo lộ trình rõ ràng; ôn tập và thực hành
+            theo từng bài học.
           </p>
 
           <form

@@ -63,6 +63,7 @@ try {
   if (localDriver)
     builder.setChromeService(new chrome.ServiceBuilder(localDriver))
   driver = await builder.build()
+  await installPracticeApiFixture(driver)
 
   for (const viewport of [
     { width: 320, height: 700 },
@@ -91,6 +92,16 @@ try {
       5000,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'register')
+    await driver.get(`${baseUrl}/practice`)
+    await driver.wait(until.elementLocated(By.css('.practice-exam-card')), 5000)
+    await assertNoHorizontalOverflow(driver, viewport.width, 'practice catalog')
+    await driver.get(`${baseUrl}/practice/exams/english-workplace-starter`)
+    await driver.wait(until.elementLocated(By.css('.practice-intro h1')), 5000)
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'practice exam intro',
+    )
   }
 
   await driver.get(baseUrl)
@@ -123,7 +134,9 @@ try {
     assert.match(await heading.getText(), /Chào Học viên kiểm thử/)
     await driver.wait(
       until.elementLocated(
-        By.xpath("//*[contains(text(), 'Clean Architecture thực chiến')]"),
+        By.xpath(
+          "//*[contains(text(), 'English for Workplace Communication')]",
+        ),
       ),
       5000,
     )
@@ -138,6 +151,34 @@ try {
       viewport.width,
       'learning dashboard',
     )
+  }
+
+  await installAuthenticatedApiFixture(driver, 'LECTURE')
+  for (const viewport of [
+    { width: 320, height: 700 },
+    { width: 768, height: 900 },
+    { width: 1440, height: 900 },
+  ]) {
+    await driver.manage().window().setRect(viewport)
+    await driver.sendDevToolsCommand('Emulation.setDeviceMetricsOverride', {
+      ...viewport,
+      deviceScaleFactor: 1,
+      mobile: viewport.width < 768,
+    })
+    await driver.get(`${baseUrl}/instructor/writing-reviews`)
+    await driver.wait(
+      until.elementLocated(By.css('.practice-reviewer-text')),
+      5000,
+    )
+    assert.equal(
+      await driver.findElement(By.css('h1')).getText(),
+      'Chấm bài Viết',
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.practice-rubric select'))).length,
+      4,
+    )
+    await assertNoHorizontalOverflow(driver, viewport.width, 'writing review')
   }
 } finally {
   if (driver) await driver.quit()
@@ -161,7 +202,7 @@ async function assertNoHorizontalOverflow(driver, viewportWidth, pageName) {
   )
 }
 
-async function installAuthenticatedApiFixture(driver) {
+async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
   const session = {
     accessToken: 'e30.eyJleHAiOjQxMDI0NDQ4MDB9.',
     tokenType: 'Bearer',
@@ -170,7 +211,7 @@ async function installAuthenticatedApiFixture(driver) {
       id: '8ec33d91-0cc4-445f-9266-5f44d7bca900',
       email: 'learner@example.com',
       displayName: 'Học viên kiểm thử',
-      roles: ['STUDENT'],
+      roles: [role],
     },
   }
   const analytics = {
@@ -192,9 +233,9 @@ async function installAuthenticatedApiFixture(driver) {
       enrolledAt: '2026-09-01T00:00:00Z',
       course: {
         id: '8aff449f-cfa6-4ed8-a3e7-5461090ee101',
-        slug: 'clean-architecture',
-        title: 'Clean Architecture thực chiến',
-        shortDescription: 'Thiết kế hệ thống dễ bảo trì.',
+        slug: 'english-workplace-communication',
+        title: 'English for Workplace Communication',
+        shortDescription: 'Luyện giao tiếp tiếng Anh nơi công sở.',
         level: 'INTERMEDIATE',
         price: 0,
         currency: 'VND',
@@ -203,8 +244,8 @@ async function installAuthenticatedApiFixture(driver) {
         instructorName: 'Giảng viên',
         category: {
           id: 'category-1',
-          slug: 'backend',
-          name: 'Backend',
+          slug: 'workplace-english',
+          name: 'Tiếng Anh công sở',
           description: null,
         },
       },
@@ -219,8 +260,19 @@ async function installAuthenticatedApiFixture(driver) {
       nextCursor: null,
       unreadCount: 0,
     },
+    '/api/v1/practice/reviews/pending': [
+      {
+        attemptId: 'attempt-review',
+        questionId: 'writing-question',
+        examTitle: 'English Workplace Starter',
+        prompt: 'Write a workplace email.',
+        answer: 'I would suggest a workshop about clear and polite emails.',
+        submittedAt: '2026-09-27T10:00:00Z',
+      },
+    ],
   }
   const fixtureSource = `
+    (() => {
     const originalFetch = window.fetch.bind(window);
     const fixtures = ${JSON.stringify(fixtures)};
     window.fetch = (input, init) => {
@@ -235,6 +287,82 @@ async function installAuthenticatedApiFixture(driver) {
       }
       return originalFetch(input, init);
     };
+    })();
+  `
+  await driver.sendDevToolsCommand('Page.addScriptToEvaluateOnNewDocument', {
+    source: fixtureSource,
+  })
+}
+
+async function installPracticeApiFixture(driver) {
+  const exam = {
+    slug: 'english-workplace-starter',
+    title: 'English Workplace Starter',
+    description: 'Luyện nghe, đọc và viết trong tình huống công việc.',
+    durationMinutes: 35,
+    sections: [
+      {
+        id: 'part-listening',
+        skill: 'LISTENING',
+        title: 'Workplace announcement',
+        passage: null,
+        audioText: 'The meeting starts at nine.',
+        questions: [
+          {
+            id: 'question-1',
+            kind: 'CHOICE',
+            prompt: 'When?',
+            options: ['Nine', 'Ten'],
+          },
+        ],
+      },
+      {
+        id: 'part-reading',
+        skill: 'READING',
+        title: 'Email',
+        passage: 'Please send your notes by Friday.',
+        audioText: null,
+        questions: [
+          {
+            id: 'question-2',
+            kind: 'CHOICE',
+            prompt: 'When?',
+            options: ['Friday', 'Monday'],
+          },
+        ],
+      },
+      {
+        id: 'part-writing',
+        skill: 'WRITING',
+        title: 'Reply',
+        passage: 'Suggest a topic for a workshop.',
+        audioText: null,
+        questions: [
+          {
+            id: 'question-3',
+            kind: 'WRITING',
+            prompt: 'Write a short email.',
+            options: [],
+          },
+        ],
+      },
+    ],
+  }
+  const fixtureSource = `
+    (() => {
+    const practiceFetch = window.fetch.bind(window);
+    const practiceExam = ${JSON.stringify(exam)};
+    window.fetch = (input, init) => {
+      const url = new URL(typeof input === 'string' ? input : input.url, window.location.origin);
+      if (url.pathname === '/api/v1/practice/exams') {
+        return Promise.resolve(new Response(JSON.stringify([{...practiceExam, skills: ['LISTENING', 'READING', 'WRITING']}]), {status: 200}));
+      }
+      if (url.pathname === '/api/v1/practice/exams/english-workplace-starter') {
+        return Promise.resolve(new Response(JSON.stringify(practiceExam), {status: 200}));
+      }
+      return practiceFetch(input, init);
+    };
+    })();
   `
   await driver.sendDevToolsCommand('Page.addScriptToEvaluateOnNewDocument', {
     source: fixtureSource,

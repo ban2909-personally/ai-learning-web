@@ -31,6 +31,9 @@ export function CommunityHomePage() {
         <Link to="/courses">
           <CommunityIcon name="courses" /> <span>Khóa học</span>
         </Link>
+        <Link to="/practice">
+          <CommunityIcon name="courses" /> <span>Luyện thi tiếng Anh</span>
+        </Link>
         {user && (
           <>
             <div className="community-side-title">Học tập</div>
@@ -58,8 +61,8 @@ export function CommunityHomePage() {
               <em>tiến xa hơn.</em>
             </h1>
             <p>
-              Kết nối những người ham học. Chia sẻ kiến thức, đặt câu hỏi và tìm
-              cảm hứng mỗi ngày.
+              Kết nối người học tiếng Anh. Chia sẻ cách luyện Nghe, Đọc, Viết,
+              đặt câu hỏi và tìm cảm hứng mỗi ngày.
             </p>
             <div className="community-hero-actions">
               <Link to="/community/spaces">
@@ -67,6 +70,9 @@ export function CommunityHomePage() {
               </Link>
               <Link to="/courses">
                 Xem khóa học <span aria-hidden="true">→</span>
+              </Link>
+              <Link to="/practice">
+                Luyện đề tiếng Anh <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
