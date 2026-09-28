@@ -28,6 +28,16 @@ export type Post = {
   shareCount: number
   likedByViewer: boolean
   shareable: boolean
+  status?: 'ACTIVE' | 'PENDING' | 'REJECTED' | 'REMOVED'
+  commentPreview?: Comment[]
+  media?: CommunityMedia | null
+  sharedMedia?: CommunityMedia | null
+}
+
+export type CommunityMedia = {
+  id: string
+  contentType: string
+  sizeBytes: number
 }
 
 export type FeedPage = { posts: Post[]; nextCursor: string | null }

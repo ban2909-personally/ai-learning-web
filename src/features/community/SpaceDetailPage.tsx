@@ -2,10 +2,19 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { CommunityFeed } from './CommunityFeed'
+import { SpacePostModeration } from './SpacePostModeration'
+import { SpaceChat } from './SpaceChat'
 import { useCommunityApi } from './useCommunityApi'
 import type { Member, Space } from './types'
 
 export function SpaceDetailPage() {
+  const { id } = useParams()
+  const { user } = useAuth()
+  // Private feed, moderation and chat state belongs to one viewer in one space.
+  return <SpaceDetailContent key={`${id}:${user?.id ?? 'anonymous'}`} />
+}
+
+function SpaceDetailContent() {
   const { id } = useParams()
   const { user } = useAuth()
   const { read, write } = useCommunityApi()
@@ -17,11 +26,11 @@ export function SpaceDetailPage() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [feedRevision, setFeedRevision] = useState(0)
   const manager =
     space?.myStatus === 'ACTIVE' &&
     (space.myRole === 'OWNER' || space.myRole === 'ADMIN')
-  const canPost =
-    space?.myStatus === 'ACTIVE' && (space.kind === 'GROUP' || manager)
+  const canPost = space?.myStatus === 'ACTIVE'
   const refresh = useCallback(async () => {
     if (!id) return
     try {
@@ -232,19 +241,35 @@ export function SpaceDetailPage() {
               <h2>Bài viết</h2>
             </div>
           </div>
+          {manager && (
+            <SpacePostModeration
+              spaceId={space.id}
+              onPublished={() => setFeedRevision((current) => current + 1)}
+            />
+          )}
           {space.visibility === 'PRIVATE' && space.myStatus !== 'ACTIVE' ? (
             <div className="community-card community-empty">
               Nội dung của nhóm riêng tư chỉ hiển thị cho thành viên.
             </div>
           ) : (
             <CommunityFeed
+              key={`${space.id}-${feedRevision}-${space.myStatus}`}
               spaceId={space.id}
               canPost={Boolean(canPost)}
+              canModerate={manager}
               canInteract={space.kind === 'PAGE' || space.myStatus === 'ACTIVE'}
             />
           )}
         </div>
         <aside className="community-space-aside">
+          {space.myStatus === 'ACTIVE' && (
+            <SpaceChat
+              key={space.id}
+              spaceId={space.id}
+              name={space.name}
+              manager={manager}
+            />
+          )}
           <div className="community-card">
             <h2>Về không gian này</h2>
             <p>{space.description || 'Cùng nhau học tập và trao đổi.'}</p>

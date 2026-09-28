@@ -5,7 +5,8 @@ import { apiRequest } from '../../lib/api'
 export function useCommunityApi() {
   const { user, request } = useAuth()
   const read = useCallback(
-    <T>(path: string) => (user ? request<T>(path) : apiRequest<T>(path)),
+    <T>(path: string, init?: RequestInit) =>
+      user ? request<T>(path, init) : apiRequest<T>(path, init),
     [request, user],
   )
   const write = useCallback(

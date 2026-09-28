@@ -130,6 +130,55 @@ try {
       mobile: viewport.width < 768,
     })
     await driver.get(`${baseUrl}/dashboard`)
+    await driver.get(baseUrl)
+    await driver.wait(
+      until.elementLocated(By.css('.community-comment-preview')),
+      5000,
+    )
+    assert.equal(
+      await driver.executeScript(`
+      const head = document.querySelector('.community-post-head');
+      return Boolean(head.querySelector('.community-post-space').compareDocumentPosition(head.querySelector('strong')) & Node.DOCUMENT_POSITION_FOLLOWING);
+    `),
+      true,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'social feed and comment preview',
+    )
+    await driver.get(`${baseUrl}/community/spaces/fixture-space`)
+    await driver.wait(
+      until.elementLocated(By.css('.community-review-item')),
+      5000,
+    )
+    const chat = await driver.findElement(By.css('.community-chat-toggle'))
+    await driver.executeScript('arguments[0].click()', chat)
+    await driver.wait(
+      until.elementLocated(By.css('.community-chat-message')),
+      5000,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'space moderation and open chat',
+    )
+    await driver.get(`${baseUrl}/community/spaces/private-fixture-space`)
+    await driver.wait(until.elementLocated(By.css('.community-empty')), 5000)
+    assert.equal(
+      (await driver.findElements(By.css('.community-chat-toggle'))).length,
+      0,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.community-post'))).length,
+      0,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'private pending membership',
+    )
+    await driver.get(`${baseUrl}/dashboard`)
     const heading = await driver.wait(until.elementLocated(By.css('h1')), 5000)
     assert.match(await heading.getText(), /Chào Học viên kiểm thử/)
     await driver.wait(
@@ -301,6 +350,72 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
     ],
   }))
   const fixtures = {
+    '/api/v1/community/spaces': [
+      {
+        id: 'fixture-space',
+        name: 'English Community',
+        kind: 'GROUP',
+        visibility: 'PUBLIC',
+        description: 'Practice English together.',
+        ownerId: session.user.id,
+        ownerName: session.user.displayName,
+        memberCount: 2,
+        myRole: 'OWNER',
+        myStatus: 'ACTIVE',
+        createdAt: '2026-09-28T08:00:00Z',
+      },
+    ],
+    '/api/v1/community/spaces/fixture-space': {
+      id: 'fixture-space',
+      name: 'English Community',
+      kind: 'GROUP',
+      visibility: 'PUBLIC',
+      description: 'Practice English together.',
+      ownerId: session.user.id,
+      ownerName: session.user.displayName,
+      memberCount: 2,
+      myRole: 'OWNER',
+      myStatus: 'ACTIVE',
+      createdAt: '2026-09-28T08:00:00Z',
+    },
+    '/api/v1/community/spaces/private-fixture-space': {
+      id: 'private-fixture-space',
+      name: 'Private English Club',
+      kind: 'PAGE',
+      visibility: 'PRIVATE',
+      description: 'Members only.',
+      ownerId: 'owner',
+      ownerName: 'Owner',
+      memberCount: 2,
+      myRole: 'MEMBER',
+      myStatus: 'PENDING',
+      createdAt: '2026-09-28T08:00:00Z',
+    },
+    '/api/v1/community/spaces/fixture-space/members?page=0': [],
+    '/api/v1/community/spaces/fixture-space/posts/pending?page=0': [
+      {
+        id: 'pending',
+        authorName: 'Thành viên',
+        body: 'Please review my English learning tip.',
+        status: 'PENDING',
+      },
+    ],
+    '/api/v1/community/spaces/fixture-space/chat': {
+      messages: [
+        {
+          id: 'message',
+          sequence: 1,
+          authorId: 'member',
+          authorName: 'Người học',
+          body: 'How do you practise listening every day?',
+          removed: false,
+          createdAt: '2026-09-28T08:00:00Z',
+        },
+      ],
+      oldestSequence: 1,
+      newestSequence: 1,
+      hasMore: false,
+    },
     '/api/v1/practice/attempts/multipart': {
       id: 'multipart',
       status: 'SUBMITTED',
@@ -406,7 +521,12 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
     window.fetch = (input, init) => {
       const requestUrl = typeof input === 'string' ? input : input.url;
       const url = new URL(requestUrl, window.location.origin);
-      const fixture = fixtures[url.pathname + url.search];
+      let fixture = fixtures[url.pathname + url.search];
+      if (url.pathname === '/api/v1/community/feed') fixture = {posts:[{
+        id:'fixture-post',authorId:'member',authorName:'Người học',spaceId:'fixture-space',spaceName:'English Community',body:'A useful listening tip: '+ 'English'.repeat(60),
+        sharedPostId:null,sharedBody:null,sharedAuthorName:null,createdAt:'2026-09-28T08:00:00Z',likeCount:3,commentCount:5,shareCount:2,likedByViewer:false,shareable:true,status:'ACTIVE',
+        commentPreview:[{id:'comment',postId:'fixture-post',parentId:null,authorId:'other',authorName:'Bạn học',body:'Thanks for sharing your practice routine.',removed:false,createdAt:'2026-09-28T08:00:00Z'}],
+      }],nextCursor:null};
       if (fixture !== undefined) {
         return Promise.resolve(new Response(JSON.stringify(fixture), {
           status: 200,

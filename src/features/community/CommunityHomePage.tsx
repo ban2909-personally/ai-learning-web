@@ -76,28 +76,6 @@ export function CommunityHomePage() {
               </Link>
             </div>
           </div>
-          <div className="community-hero-visual" aria-hidden="true">
-            <div className="hero-orbit hero-orbit-one" />
-            <div className="hero-orbit hero-orbit-two" />
-            <div className="hero-signal-card">
-              <span className="hero-signal-icon">
-                <CommunityIcon name="spaces" />
-              </span>
-              <span>
-                <strong>Cùng khám phá</strong>
-                <small>Ý tưởng mới mỗi ngày</small>
-              </span>
-            </div>
-            <div className="hero-visual-avatar avatar-one">A</div>
-            <div className="hero-visual-avatar avatar-two">K</div>
-            <div className="hero-visual-avatar avatar-three">M</div>
-            <div className="hero-visual-core">
-              <CommunityIcon name="courses" />
-            </div>
-            <div className="hero-visual-tag">
-              <span /> Kết nối tri thức
-            </div>
-          </div>
         </div>
         <div className="community-section-heading">
           <div>
@@ -106,7 +84,7 @@ export function CommunityHomePage() {
           </div>
           <span>Bài viết mới nhất từ cộng đồng</span>
         </div>
-        <CommunityFeed />
+        <CommunityFeed key={user?.id ?? 'anonymous'} />
       </div>
       <aside
         className="community-side community-side-right"

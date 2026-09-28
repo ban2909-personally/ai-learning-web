@@ -7,10 +7,11 @@ const mocks = vi.hoisted(() => ({
   user: null as null | { id: string; displayName: string; roles: string[] },
   read: vi.fn(),
   write: vi.fn(),
+  upload: vi.fn(),
 }))
 
 vi.mock('../auth/AuthContext', () => ({
-  useAuth: () => ({ user: mocks.user }),
+  useAuth: () => ({ user: mocks.user, upload: mocks.upload }),
 }))
 vi.mock('./useCommunityApi', () => ({
   useCommunityApi: () => ({ read: mocks.read, write: mocks.write }),
@@ -20,6 +21,7 @@ describe('CommunityHomePage', () => {
   beforeEach(() => {
     mocks.user = null
     mocks.write.mockReset()
+    mocks.upload.mockReset()
     mocks.read
       .mockReset()
       .mockImplementation((path: string) =>
@@ -27,6 +29,126 @@ describe('CommunityHomePage', () => {
           path === '/community/spaces' ? [] : { posts: [], nextCursor: null },
         ),
       )
+  })
+
+  it('rejects media of 10 MB before sending an upload', async () => {
+    mocks.user = { id: 'guest-id', displayName: 'Khách', roles: ['GUEST'] }
+    render(
+      <MemoryRouter>
+        <CommunityHomePage />
+      </MemoryRouter>,
+    )
+    await screen.findByText('Chưa có bài viết nào.')
+    const file = new File(['image'], 'image.png', { type: 'image/png' })
+    Object.defineProperty(file, 'size', { value: 10_000_000 })
+    fireEvent.change(screen.getByLabelText('Ảnh hoặc video bài viết'), {
+      target: { files: [file] },
+    })
+    expect(screen.getByRole('alert')).toHaveTextContent('nhỏ hơn 10 MB')
+    expect(mocks.upload).not.toHaveBeenCalled()
+  })
+
+  it('uploads image-only posts for authenticated guests', async () => {
+    mocks.user = { id: 'guest-id', displayName: 'Khách', roles: ['GUEST'] }
+    mocks.upload.mockResolvedValue({
+      id: 'uploaded',
+      authorId: 'guest-id',
+      authorName: 'Khách',
+      body: '',
+      spaceId: null,
+      spaceName: null,
+      sharedPostId: null,
+      sharedBody: null,
+      sharedAuthorName: null,
+      createdAt: '2026-09-28T00:00:00Z',
+      likeCount: 0,
+      commentCount: 0,
+      shareCount: 0,
+      likedByViewer: false,
+      shareable: true,
+      status: 'ACTIVE',
+      media: { id: 'asset', contentType: 'image/png', sizeBytes: 5 },
+    })
+    render(
+      <MemoryRouter>
+        <CommunityHomePage />
+      </MemoryRouter>,
+    )
+    await screen.findByText('Chưa có bài viết nào.')
+    fireEvent.change(screen.getByLabelText('Ảnh hoặc video bài viết'), {
+      target: {
+        files: [new File(['image'], 'image.png', { type: 'image/png' })],
+      },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Đăng bài' }))
+    expect(
+      await screen.findByRole('button', { name: /Ảnh · Tải khi xem/ }),
+    ).toBeInTheDocument()
+    expect(mocks.upload).toHaveBeenCalledOnce()
+    const [path, form] = mocks.upload.mock.calls[0]
+    expect(path).toBe('/community/posts/media')
+    expect((form as FormData).get('body')).toBe('')
+    expect((form as FormData).get('file')).toBeInstanceOf(File)
+  })
+
+  it('renders comment previews without requesting full threads', async () => {
+    mocks.read.mockImplementation((path: string) =>
+      Promise.resolve(
+        path === '/community/spaces'
+          ? []
+          : {
+              posts: [
+                {
+                  id: 'preview',
+                  authorId: 'author',
+                  authorName: 'Học viên',
+                  spaceId: 'space',
+                  spaceName: 'English Club',
+                  body: 'A reading tip',
+                  sharedPostId: null,
+                  sharedBody: null,
+                  sharedAuthorName: null,
+                  createdAt: '2026-09-28T00:00:00Z',
+                  likeCount: 3,
+                  commentCount: 5,
+                  shareCount: 2,
+                  likedByViewer: false,
+                  shareable: true,
+                  commentPreview: [
+                    {
+                      id: 'comment',
+                      postId: 'preview',
+                      parentId: null,
+                      authorId: 'other',
+                      authorName: 'Người học',
+                      body: 'Useful tip',
+                      removed: false,
+                      createdAt: '2026-09-28T00:00:00Z',
+                    },
+                  ],
+                },
+              ],
+              nextCursor: null,
+            },
+      ),
+    )
+    render(
+      <MemoryRouter>
+        <CommunityHomePage />
+      </MemoryRouter>,
+    )
+    expect(await screen.findByText('Useful tip')).toBeInTheDocument()
+    expect(screen.getByText('5 bình luận · 2 chia sẻ')).toBeInTheDocument()
+    expect(
+      mocks.read.mock.calls.every(
+        ([path]) => !String(path).endsWith('/comments'),
+      ),
+    ).toBe(true)
+    const space = screen.getByRole('link', { name: 'English Club' })
+    const author = screen.getByText('Học viên')
+    expect(
+      space.compareDocumentPosition(author) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   })
 
   it('lets anonymous visitors read the feed and invites them to sign in before posting', async () => {
@@ -46,6 +168,7 @@ describe('CommunityHomePage', () => {
     expect(await screen.findByText('Chưa có bài viết nào.')).toBeInTheDocument()
     expect(mocks.read).toHaveBeenCalledWith(
       expect.stringContaining('/community/feed?'),
+      { signal: expect.any(AbortSignal) },
     )
   })
 

@@ -64,7 +64,7 @@ export function SpaceDirectoryPage() {
         name: name.trim(),
         description: description.trim(),
         kind: newKind,
-        visibility: newKind === 'PAGE' ? 'PUBLIC' : visibility,
+        visibility,
       })
       setSpaces((current) => [space, ...current])
       setCreating(false)
@@ -145,7 +145,7 @@ export function SpaceDirectoryPage() {
                 <option value="PAGE">Trang</option>
               </select>
             </label>
-            {newKind === 'GROUP' && (
+            {
               <label>
                 Quyền xem
                 <select
@@ -158,7 +158,7 @@ export function SpaceDirectoryPage() {
                   <option value="PRIVATE">Riêng tư</option>
                 </select>
               </label>
-            )}
+            }
           </div>
           <div className="community-form-actions">
             <button type="button" onClick={() => setCreating(false)}>
