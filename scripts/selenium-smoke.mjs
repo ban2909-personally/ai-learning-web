@@ -151,6 +151,26 @@ try {
       viewport.width,
       'learning dashboard',
     )
+    await driver.get(`${baseUrl}/practice/attempts/multipart/result`)
+    await driver.wait(
+      until.elementLocated(By.css('.practice-result-tabs')),
+      5000,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.practice-result-tabs button')))
+        .length,
+      20,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.practice-result-stats > div')))
+        .length,
+      1,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'multipart exam result',
+    )
   }
 
   await installAuthenticatedApiFixture(driver, 'LECTURE')
@@ -265,7 +285,58 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
       },
     },
   ]
+  const multipartSections = Array.from({ length: 20 }, (_, index) => ({
+    id: `section-${index}`,
+    skill: 'READING',
+    title: `Reading part ${index + 1}`,
+    passage: `Original reading passage ${index + 1}.`,
+    audioText: null,
+    questions: [
+      {
+        id: `question-${index}`,
+        kind: 'TEXT',
+        prompt: `Question ${index + 1}`,
+        options: [],
+      },
+    ],
+  }))
   const fixtures = {
+    '/api/v1/practice/attempts/multipart': {
+      id: 'multipart',
+      status: 'SUBMITTED',
+      answers: {},
+      exam: {
+        id: 'multipart-exam',
+        slug: 'multipart',
+        title: 'Multipart English Practice',
+        description: 'Twenty reading parts.',
+        durationMinutes: 60,
+        sections: multipartSections,
+      },
+    },
+    '/api/v1/practice/attempts/multipart/result': {
+      attemptId: 'multipart',
+      examTitle: 'Multipart English Practice',
+      correct: 0,
+      total: 20,
+      sections: multipartSections.map((part) => ({
+        skill: part.skill,
+        title: part.title,
+        correct: 0,
+        total: 1,
+        questions: [
+          {
+            questionId: part.questions[0].id,
+            answer: '',
+            status: 'UNANSWERED',
+            correct: false,
+            correctAnswer: 'Tuesday',
+            explanation: 'The passage names Tuesday.',
+            writingFeedback: null,
+          },
+        ],
+      })),
+    },
     '/api/v1/auth/refresh': session,
     '/api/v1/me/learning-analytics?courseLimit=20': analytics,
     '/api/v1/me/enrollments': enrollments,

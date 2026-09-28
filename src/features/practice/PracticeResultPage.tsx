@@ -42,6 +42,17 @@ export function PracticeResultPage() {
 
   const section = result.sections[activeSkill]
   const examSection = attempt.exam.sections[activeSkill]
+  const skillTotals = [
+    ...new Set(result.sections.map((part) => part.skill)),
+  ].map((skill) => {
+    const parts = result.sections.filter((part) => part.skill === skill)
+    return {
+      skill,
+      correct: parts.reduce((sum, part) => sum + part.correct, 0),
+      total: parts.reduce((sum, part) => sum + part.total, 0),
+      questions: parts.flatMap((part) => part.questions),
+    }
+  })
   return (
     <main className="practice-shell practice-results">
       <Link to="/practice" className="practice-back">
@@ -65,7 +76,7 @@ export function PracticeResultPage() {
         </div>
       </section>
       <div className="practice-result-stats">
-        {result.sections.map((part) => (
+        {skillTotals.map((part) => (
           <div key={part.skill}>
             <span>{skillLabels[part.skill]}</span>
             <strong>
@@ -95,10 +106,14 @@ export function PracticeResultPage() {
             role="tab"
             aria-selected={activeSkill === index}
             className={activeSkill === index ? 'active' : ''}
-            key={part.skill}
+            key={`${part.skill}-${index}`}
             onClick={() => setActiveSkill(index)}
           >
             {skillLabels[part.skill]}
+            {result.sections.some(
+              (other, position) =>
+                position !== index && other.skill === part.skill,
+            ) && ` · Phần ${index + 1}`}
           </button>
         ))}
       </div>

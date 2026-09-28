@@ -68,7 +68,7 @@ export function PracticeCatalogPage() {
             <h3>{exam.title}</h3>
             <p>{exam.description}</p>
             <div className="practice-skill-list">
-              {exam.skills.map((skill) => (
+              {[...new Set(exam.skills)].map((skill) => (
                 <span key={skill}>{skillLabels[skill]}</span>
               ))}
             </div>
