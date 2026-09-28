@@ -6,6 +6,35 @@ import { PracticeCatalogPage } from './PracticeCatalogPage'
 describe('PracticeCatalogPage', () => {
   afterEach(() => vi.restoreAllMocks())
 
+  it('shows each skill once for an exam with multiple parts of the same skill', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(
+        JSON.stringify([
+          {
+            slug: 'multipart-reading',
+            title: 'Multipart Reading',
+            description: 'Two reading parts.',
+            durationMinutes: 30,
+            skills: ['READING', 'READING', 'LISTENING'],
+          },
+        ]),
+        { status: 200 },
+      ),
+    )
+    const { container } = render(
+      <MemoryRouter>
+        <PracticeCatalogPage />
+      </MemoryRouter>,
+    )
+    await screen.findByRole('heading', { name: 'Multipart Reading' })
+    expect(
+      container.querySelectorAll('.practice-skill-list span'),
+    ).toHaveLength(2)
+    expect(container.querySelector('.practice-skill-list')).toHaveTextContent(
+      'ĐọcNghe',
+    )
+  })
+
   it('shows published English practice exams to a guest', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       new Response(

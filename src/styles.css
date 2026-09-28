@@ -122,6 +122,51 @@
   .workspace-navigation > a.active {
     @apply border-blue-600 font-bold text-blue-700;
   }
+  .staff-navigation {
+    position: relative;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+  .staff-navigation > summary {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 6px;
+    padding: 0 14px;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .staff-navigation > summary::-webkit-details-marker {
+    display: none;
+  }
+  .staff-navigation[open] > summary {
+    color: #1d4ed8;
+  }
+  .staff-navigation-menu {
+    position: absolute;
+    top: calc(100% - 4px);
+    left: 0;
+    display: grid;
+    gap: 4px;
+    min-width: 230px;
+    padding: 8px;
+    background: white;
+    border: 1px solid #dce6f2;
+    border-radius: 12px;
+    box-shadow: 0 14px 32px #1a31531c;
+  }
+  .staff-navigation-menu a {
+    padding: 11px 12px;
+    border-radius: 8px;
+    color: #475569;
+  }
+  .staff-navigation-menu a.active,
+  .staff-navigation-menu a:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
   .header-account {
     @apply ml-auto flex shrink-0 items-center gap-3;
   }
@@ -537,6 +582,17 @@
   }
   .workspace-navigation > a.active {
     background: #edf3ff;
+  }
+  .staff-navigation {
+    grid-column: 1 / -1;
+  }
+  .staff-navigation > summary {
+    padding: 12px;
+  }
+  .staff-navigation-menu {
+    position: static;
+    min-width: 0;
+    box-shadow: none;
   }
 }
 @media (max-width: 1024px) {

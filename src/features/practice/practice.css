@@ -480,10 +480,14 @@
 }
 .practice-result-tabs {
   display: flex;
+  max-width: 100%;
+  overflow-x: auto;
   border-bottom: 1px solid #dce6f2;
   margin: 30px 0 18px;
 }
 .practice-result-tabs button {
+  flex: none;
+  white-space: nowrap;
   background: transparent;
   border: 0;
   border-bottom: 3px solid transparent;

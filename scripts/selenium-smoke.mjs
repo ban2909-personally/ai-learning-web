@@ -151,6 +151,26 @@ try {
       viewport.width,
       'learning dashboard',
     )
+    await driver.get(`${baseUrl}/practice/attempts/multipart/result`)
+    await driver.wait(
+      until.elementLocated(By.css('.practice-result-tabs')),
+      5000,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.practice-result-tabs button')))
+        .length,
+      20,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.practice-result-stats > div')))
+        .length,
+      1,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'multipart exam result',
+    )
   }
 
   await installAuthenticatedApiFixture(driver, 'LECTURE')
@@ -179,6 +199,20 @@ try {
       4,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'writing review')
+    await driver.get(`${baseUrl}/instructor/exams`)
+    await driver.wait(until.elementLocated(By.css('.exam-revision-card')), 5000)
+    await assertNoHorizontalOverflow(driver, viewport.width, 'exam studio')
+    await driver.get(`${baseUrl}/instructor/exams/exam-editor`)
+    await driver.wait(
+      until.elementLocated(By.css('.exam-question-editor')),
+      5000,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.exam-question-editor textarea')))
+        .length,
+      2,
+    )
+    await assertNoHorizontalOverflow(driver, viewport.width, 'exam editor')
   }
 } finally {
   if (driver) await driver.quit()
@@ -251,7 +285,58 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
       },
     },
   ]
+  const multipartSections = Array.from({ length: 20 }, (_, index) => ({
+    id: `section-${index}`,
+    skill: 'READING',
+    title: `Reading part ${index + 1}`,
+    passage: `Original reading passage ${index + 1}.`,
+    audioText: null,
+    questions: [
+      {
+        id: `question-${index}`,
+        kind: 'TEXT',
+        prompt: `Question ${index + 1}`,
+        options: [],
+      },
+    ],
+  }))
   const fixtures = {
+    '/api/v1/practice/attempts/multipart': {
+      id: 'multipart',
+      status: 'SUBMITTED',
+      answers: {},
+      exam: {
+        id: 'multipart-exam',
+        slug: 'multipart',
+        title: 'Multipart English Practice',
+        description: 'Twenty reading parts.',
+        durationMinutes: 60,
+        sections: multipartSections,
+      },
+    },
+    '/api/v1/practice/attempts/multipart/result': {
+      attemptId: 'multipart',
+      examTitle: 'Multipart English Practice',
+      correct: 0,
+      total: 20,
+      sections: multipartSections.map((part) => ({
+        skill: part.skill,
+        title: part.title,
+        correct: 0,
+        total: 1,
+        questions: [
+          {
+            questionId: part.questions[0].id,
+            answer: '',
+            status: 'UNANSWERED',
+            correct: false,
+            correctAnswer: 'Tuesday',
+            explanation: 'The passage names Tuesday.',
+            writingFeedback: null,
+          },
+        ],
+      })),
+    },
     '/api/v1/auth/refresh': session,
     '/api/v1/me/learning-analytics?courseLimit=20': analytics,
     '/api/v1/me/enrollments': enrollments,
@@ -270,6 +355,49 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
         submittedAt: '2026-09-27T10:00:00Z',
       },
     ],
+    '/api/v1/practice/authoring/exams?page=0': [
+      {
+        id: 'exam-editor',
+        slug: 'english-email',
+        title: 'English Email Practice',
+        durationMinutes: 20,
+        revision: 1,
+        status: 'DRAFT',
+        version: 0,
+      },
+    ],
+    '/api/v1/practice/authoring/exams/exam-editor': {
+      id: 'exam-editor',
+      seriesId: 'series-editor',
+      authorId: session.user.id,
+      revision: 1,
+      status: 'DRAFT',
+      version: 0,
+      exam: {
+        id: 'exam-editor',
+        slug: 'english-email',
+        title: 'English Email Practice',
+        description: 'Original workplace English questions.',
+        durationMinutes: 20,
+        sections: [
+          {
+            skill: 'READING',
+            title: 'An email',
+            passage: 'The meeting is Tuesday.',
+            audioText: null,
+            questions: [
+              {
+                kind: 'TEXT',
+                prompt: 'When is the meeting?',
+                options: [],
+                correctAnswer: 'Tuesday',
+                explanation: 'The email names Tuesday.',
+              },
+            ],
+          },
+        ],
+      },
+    },
   }
   const fixtureSource = `
     (() => {
