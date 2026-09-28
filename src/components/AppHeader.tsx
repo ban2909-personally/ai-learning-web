@@ -72,7 +72,10 @@ export function AppHeader() {
             </>
           )}
           {hasRole(user?.roles, [...authorRoles, ...reviewRoles]) && (
-            <NavLink to="/instructor/courses">Biên soạn</NavLink>
+            <>
+              <NavLink to="/instructor/courses">Biên soạn</NavLink>
+              <NavLink to="/instructor/writing-reviews">Chấm bài viết</NavLink>
+            </>
           )}
           {user?.roles.includes('ADMIN') && (
             <NavLink to="/admin">Quản trị</NavLink>

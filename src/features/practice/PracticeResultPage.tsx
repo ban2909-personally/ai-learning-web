@@ -70,7 +70,15 @@ export function PracticeResultPage() {
             <span>{skillLabels[part.skill]}</span>
             <strong>
               {part.skill === 'WRITING'
-                ? 'Chờ chấm'
+                ? part.questions.some(
+                    (question) => question.status === 'PENDING_REVIEW',
+                  )
+                  ? 'Chờ chấm'
+                  : part.questions.some(
+                        (question) => question.status === 'REVIEWED',
+                      )
+                    ? `${part.questions.reduce((sum, question) => sum + (question.writingFeedback?.totalScore ?? 0), 0)}/${part.questions.length * 20}`
+                    : 'Chưa làm'
                 : `${part.correct}/${part.total}`}
             </strong>
           </div>
@@ -132,6 +140,32 @@ export function PracticeResultPage() {
                     <p>{review.explanation}</p>
                   </details>
                 </>
+              ) : review.status === 'REVIEWED' && review.writingFeedback ? (
+                <div className="practice-writing-feedback">
+                  <span className="practice-correct">
+                    Đã chấm bởi giảng viên
+                  </span>
+                  <strong>
+                    {review.writingFeedback.totalScore}/20 điểm luyện tập
+                  </strong>
+                  <div>
+                    <span>
+                      Đáp ứng đề bài: {review.writingFeedback.taskScore}/5
+                    </span>
+                    <span>
+                      Mạch lạc: {review.writingFeedback.coherenceScore}/5
+                    </span>
+                    <span>
+                      Từ vựng: {review.writingFeedback.vocabularyScore}/5
+                    </span>
+                    <span>
+                      Ngữ pháp: {review.writingFeedback.grammarScore}/5
+                    </span>
+                  </div>
+                  <p>
+                    <b>Nhận xét:</b> {review.writingFeedback.feedback}
+                  </p>
+                </div>
               ) : (
                 <span className="practice-pending">
                   {review.status === 'PENDING_REVIEW'

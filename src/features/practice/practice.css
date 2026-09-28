@@ -626,3 +626,213 @@
     padding: 15px;
   }
 }
+
+.practice-reviewer h1 {
+  margin: 10px 0;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+.practice-reviewer-intro {
+  max-width: 720px;
+  color: #61738c;
+  line-height: 1.7;
+  margin-bottom: 30px;
+}
+.practice-notice,
+.practice-empty {
+  padding: 16px 18px;
+  border-radius: 12px;
+  color: #087052;
+  background: #e8f8f1;
+  border: 1px solid #bce6d5;
+  margin-bottom: 18px;
+}
+.practice-reviewer-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+.practice-reviewer-queue,
+.practice-reviewer-answer,
+.practice-rubric {
+  background: white;
+  border: 1px solid #dfe8f3;
+  border-radius: 17px;
+  padding: 22px;
+}
+.practice-reviewer-queue h2 {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+.practice-reviewer-queue h2 span {
+  color: #2468e9;
+}
+.practice-reviewer-queue button {
+  display: grid;
+  width: 100%;
+  gap: 5px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #e0e9f4;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.practice-reviewer-queue button.active {
+  background: #eff6ff;
+  border-color: #2468e9;
+}
+.practice-reviewer-queue button strong {
+  font-size: 13px;
+}
+.practice-reviewer-queue button small,
+.practice-reviewer-queue button span {
+  font-size: 11px;
+  color: #687a93;
+}
+.practice-reviewer-main {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.practice-reviewer-answer h2,
+.practice-rubric h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 10px 0 16px;
+}
+.practice-reviewer-prompt {
+  color: #536782;
+  margin-bottom: 15px;
+}
+.practice-reviewer-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+  background: #f6f9fd;
+  border: 1px solid #e2ebf6;
+  border-radius: 10px;
+  padding: 18px;
+}
+.practice-rubric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.practice-rubric-head > strong {
+  color: #2468e9;
+  font-size: 30px;
+}
+.practice-rubric-head small {
+  color: #8aa0bb;
+  font-size: 16px;
+}
+.practice-rubric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 10px 0 24px;
+}
+.practice-rubric-grid label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e0e9f4;
+  border-radius: 10px;
+}
+.practice-rubric-grid strong,
+.practice-rubric-grid small {
+  display: block;
+}
+.practice-rubric-grid small {
+  color: #71829a;
+  font-size: 11px;
+}
+.practice-rubric-grid select,
+.practice-rubric textarea {
+  border: 1px solid #cbd9ec;
+  border-radius: 8px;
+  background: white;
+  padding: 9px;
+}
+.practice-feedback-label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.practice-rubric textarea {
+  width: 100%;
+  resize: vertical;
+}
+.practice-rubric-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 15px;
+}
+.practice-rubric-actions small {
+  color: #70819a;
+}
+.practice-writing-feedback {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.practice-writing-feedback > strong {
+  color: #2160d6;
+  font-size: 20px;
+}
+.practice-writing-feedback > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.practice-writing-feedback > div span {
+  background: #f0f6ff;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 12px;
+}
+.practice-writing-feedback p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  border-radius: 9px;
+  background: #f6f9fd;
+}
+@media (max-width: 850px) {
+  .practice-reviewer-grid {
+    grid-template-columns: 1fr;
+  }
+  .practice-reviewer-queue {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+  }
+  .practice-reviewer-queue h2 {
+    min-width: 120px;
+  }
+  .practice-reviewer-queue button {
+    min-width: 180px;
+    margin: 0;
+  }
+}
+@media (max-width: 620px) {
+  .practice-rubric-grid,
+  .practice-writing-feedback > div {
+    grid-template-columns: 1fr;
+  }
+  .practice-rubric-actions {
+    display: grid;
+  }
+}

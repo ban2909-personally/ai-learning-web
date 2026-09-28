@@ -49,7 +49,15 @@ export type Result = {
       correct: boolean | null
       correctAnswer: string | null
       explanation: string | null
-      status: 'GRADED' | 'PENDING_REVIEW' | 'UNANSWERED'
+      status: 'GRADED' | 'PENDING_REVIEW' | 'UNANSWERED' | 'REVIEWED'
+      writingFeedback: {
+        taskScore: number
+        coherenceScore: number
+        vocabularyScore: number
+        grammarScore: number
+        totalScore: number
+        feedback: string
+      } | null
     }[]
   }[]
 }

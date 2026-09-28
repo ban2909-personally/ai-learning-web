@@ -109,6 +109,11 @@ const PracticeResultPage = lazy(() =>
     default: module.PracticeResultPage,
   })),
 )
+const PracticeWritingReviewPage = lazy(() =>
+  import('../features/practice/PracticeWritingReviewPage').then((module) => ({
+    default: module.PracticeWritingReviewPage,
+  })),
+)
 
 export function App() {
   return (
@@ -164,6 +169,10 @@ export function App() {
                   <Route
                     path="instructor/courses"
                     element={<CourseStudioPage />}
+                  />
+                  <Route
+                    path="instructor/writing-reviews"
+                    element={<PracticeWritingReviewPage />}
                   />
                 </Route>
                 <Route element={<RoleRoute roles={authorRoles} />}>
