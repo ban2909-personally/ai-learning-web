@@ -1,6 +1,26 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react'
-import { apiRequest, apiStream, apiUpload, ApiError, type ServerSentEvent } from '../../lib/api'
-import type { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from 'react'
+import {
+  apiRequest,
+  apiStream,
+  apiUpload,
+  ApiError,
+  type ServerSentEvent,
+} from '../../lib/api'
+import type {
+  AuthResponse,
+  LoginInput,
+  RegisterInput,
+  User,
+} from '../../types/auth'
 
 type AuthContextValue = {
   user: User | null
@@ -11,8 +31,17 @@ type AuthContextValue = {
   logout: () => Promise<void>
   getAccessToken: () => Promise<string>
   request: <T>(path: string, init?: RequestInit) => Promise<T>
-  stream: (path: string, init: RequestInit, onEvent: (event: ServerSentEvent) => void) => Promise<void>
-  upload: <T>(path: string, body: FormData, onProgress: (percentage: number) => void) => Promise<T>
+  stream: (
+    path: string,
+    init: RequestInit,
+    onEvent: (event: ServerSentEvent) => void,
+  ) => Promise<void>
+  upload: <T>(
+    path: string,
+    body: FormData,
+    onProgress: (percentage: number) => void,
+    method?: 'POST' | 'PUT',
+  ) => Promise<T>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -42,7 +71,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (refreshPromiseRef.current) return refreshPromiseRef.current
 
     const sessionEpoch = sessionEpochRef.current
-    const refresh = apiRequest<AuthResponse>('/auth/refresh', { method: 'POST' })
+    const refresh = apiRequest<AuthResponse>('/auth/refresh', {
+      method: 'POST',
+    })
       .then((session) => {
         if (sessionEpoch !== sessionEpochRef.current) {
           throw new Error('Session changed while refresh was in progress')
@@ -57,10 +88,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     refreshPromiseRef.current = refresh
     refresh.then(
       () => {
-        if (refreshPromiseRef.current === refresh) refreshPromiseRef.current = null
+        if (refreshPromiseRef.current === refresh)
+          refreshPromiseRef.current = null
       },
       () => {
-        if (refreshPromiseRef.current === refresh) refreshPromiseRef.current = null
+        if (refreshPromiseRef.current === refresh)
+          refreshPromiseRef.current = null
       },
     )
     return refresh
@@ -76,23 +109,29 @@ export function AuthProvider({ children }: PropsWithChildren) {
       .finally(() => setLoading(false))
   }, [refreshSession])
 
-  const login = useCallback(async (input: LoginInput) => {
-    const session = await apiRequest<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    })
-    sessionEpochRef.current += 1
-    acceptSession(session)
-  }, [acceptSession])
+  const login = useCallback(
+    async (input: LoginInput) => {
+      const session = await apiRequest<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      })
+      sessionEpochRef.current += 1
+      acceptSession(session)
+    },
+    [acceptSession],
+  )
 
-  const register = useCallback(async (input: RegisterInput) => {
-    const session = await apiRequest<AuthResponse>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    })
-    sessionEpochRef.current += 1
-    acceptSession(session)
-  }, [acceptSession])
+  const register = useCallback(
+    async (input: RegisterInput) => {
+      const session = await apiRequest<AuthResponse>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      })
+      sessionEpochRef.current += 1
+      acceptSession(session)
+    },
+    [acceptSession],
+  )
 
   const logout = useCallback(async () => {
     clearSession()
@@ -105,60 +144,84 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return (await refreshSession()).accessToken
   }, [refreshSession])
 
-  const request = useCallback(async <T,>(path: string, init: RequestInit = {}) => {
-    try {
-      return await apiRequest<T>(path, init, accessTokenRef.current)
-    } catch (error) {
-      if (!(error instanceof ApiError) || error.status !== 401) throw error
-      const session = await refreshSession()
-      return apiRequest<T>(path, init, session.accessToken)
-    }
-  }, [refreshSession])
+  const request = useCallback(
+    async <T,>(path: string, init: RequestInit = {}) => {
+      try {
+        return await apiRequest<T>(path, init, accessTokenRef.current)
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) throw error
+        const session = await refreshSession()
+        return apiRequest<T>(path, init, session.accessToken)
+      }
+    },
+    [refreshSession],
+  )
 
-  const upload = useCallback(async <T,>(
-    path: string,
-    body: FormData,
-    onProgress: (percentage: number) => void,
-  ) => {
-    let token = accessTokenRef.current
-    if (!token) token = (await refreshSession()).accessToken
-    try {
-      return await apiUpload<T>(path, body, token, onProgress)
-    } catch (error) {
-      if (!(error instanceof ApiError) || error.status !== 401) throw error
-      const session = await refreshSession()
-      return apiUpload<T>(path, body, session.accessToken, onProgress)
-    }
-  }, [refreshSession])
+  const upload = useCallback(
+    async <T,>(
+      path: string,
+      body: FormData,
+      onProgress: (percentage: number) => void,
+      method: 'POST' | 'PUT' = 'PUT',
+    ) => {
+      let token = accessTokenRef.current
+      if (!token) token = (await refreshSession()).accessToken
+      try {
+        return await apiUpload<T>(path, body, token, onProgress, method)
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) throw error
+        const session = await refreshSession()
+        return apiUpload<T>(path, body, session.accessToken, onProgress, method)
+      }
+    },
+    [refreshSession],
+  )
 
-  const stream = useCallback(async (
-    path: string,
-    init: RequestInit,
-    onEvent: (event: ServerSentEvent) => void,
-  ) => {
-    let token = accessTokenRef.current
-    if (!token) token = (await refreshSession()).accessToken
-    try {
-      await apiStream(path, init, token, onEvent)
-    } catch (error) {
-      if (!(error instanceof ApiError) || error.status !== 401) throw error
-      const session = await refreshSession()
-      await apiStream(path, init, session.accessToken, onEvent)
-    }
-  }, [refreshSession])
+  const stream = useCallback(
+    async (
+      path: string,
+      init: RequestInit,
+      onEvent: (event: ServerSentEvent) => void,
+    ) => {
+      let token = accessTokenRef.current
+      if (!token) token = (await refreshSession()).accessToken
+      try {
+        await apiStream(path, init, token, onEvent)
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) throw error
+        const session = await refreshSession()
+        await apiStream(path, init, session.accessToken, onEvent)
+      }
+    },
+    [refreshSession],
+  )
 
-  const value = useMemo<AuthContextValue>(() => ({
-    user,
-    accessToken,
-    isLoading,
-    login,
-    register,
-    logout,
-    getAccessToken,
-    request,
-    stream,
-    upload,
-  }), [accessToken, getAccessToken, isLoading, login, logout, register, request, stream, upload, user])
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      accessToken,
+      isLoading,
+      login,
+      register,
+      logout,
+      getAccessToken,
+      request,
+      stream,
+      upload,
+    }),
+    [
+      accessToken,
+      getAccessToken,
+      isLoading,
+      login,
+      logout,
+      register,
+      request,
+      stream,
+      upload,
+      user,
+    ],
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
@@ -176,7 +239,10 @@ function isTokenFresh(token: string): boolean {
     const normalized = payload.replaceAll('-', '+').replaceAll('_', '/')
     const base64 = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
     const decoded = JSON.parse(atob(base64)) as { exp?: number }
-    return typeof decoded.exp === 'number' && decoded.exp * 1000 > Date.now() + 30_000
+    return (
+      typeof decoded.exp === 'number' &&
+      decoded.exp * 1000 > Date.now() + 30_000
+    )
   } catch {
     return false
   }

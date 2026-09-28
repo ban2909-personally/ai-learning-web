@@ -152,10 +152,11 @@ export function apiUpload<T>(
   body: FormData,
   accessToken: string,
   onProgress: (percentage: number) => void,
+  method: 'POST' | 'PUT' = 'PUT',
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
-    request.open('PUT', `${API_URL}${path}`)
+    request.open(method, `${API_URL}${path}`)
     request.withCredentials = true
     request.setRequestHeader('Authorization', `Bearer ${accessToken}`)
     request.upload.addEventListener('progress', (event) => {
@@ -168,7 +169,9 @@ export function apiUpload<T>(
         resolve(response as T)
         return
       }
-      const problem = response as ProblemDetail
+      const problem = (
+        response && typeof response === 'object' ? response : {}
+      ) as ProblemDetail
       reject(
         new ApiError(
           problem.detail ?? 'Không thể tải nội dung lên hệ thống.',

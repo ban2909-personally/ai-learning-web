@@ -126,7 +126,12 @@ export function CommunityFeed({
         form.append('file', file)
         form.append('body', body.trim())
         if (spaceId) form.append('spaceId', spaceId)
-        post = await upload<Post>('/community/posts/media', form, setProgress)
+        post = await upload<Post>(
+          '/community/posts/media',
+          form,
+          setProgress,
+          'POST',
+        )
       } else {
         post = await write<Post>('/community/posts', 'POST', {
           body: body.trim(),

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { apiRequest, apiStream, resolveWebSocketUrl } from './api'
+import { apiRequest, apiStream, apiUpload, resolveWebSocketUrl } from './api'
 
 describe('apiRequest', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -65,5 +65,71 @@ describe('resolveWebSocketUrl', () => {
     expect(resolveWebSocketUrl('/ws/notifications')).toBe(
       'ws://localhost:8080/ws/notifications',
     )
+  })
+})
+
+describe('apiUpload transport', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  function transport(status = 201, response = '{"id":"created"}') {
+    class Request extends EventTarget {
+      upload = new EventTarget()
+      withCredentials = false
+      status = status
+      responseText = response
+      open = vi.fn()
+      setRequestHeader = vi.fn()
+      send = vi.fn(() =>
+        queueMicrotask(() => this.dispatchEvent(new Event('load'))),
+      )
+    }
+    const request = new Request()
+    vi.stubGlobal(
+      'XMLHttpRequest',
+      class {
+        constructor() {
+          return request
+        }
+      },
+    )
+    return request
+  }
+  it('creates community media with POST and does not set a multipart Content-Type', async () => {
+    const request = transport()
+    const form = new FormData()
+    await expect(
+      apiUpload('/community/posts/media', form, 'token', vi.fn(), 'POST'),
+    ).resolves.toEqual({ id: 'created' })
+    expect(request.open).toHaveBeenCalledWith(
+      'POST',
+      'http://localhost:8080/api/v1/community/posts/media',
+    )
+    expect(request.withCredentials).toBe(true)
+    expect(request.setRequestHeader).toHaveBeenCalledExactlyOnceWith(
+      'Authorization',
+      'Bearer token',
+    )
+    expect(request.send).toHaveBeenCalledWith(form)
+  })
+  it('preserves the existing lesson-media PUT default', async () => {
+    const request = transport()
+    await apiUpload(
+      '/instructor/lessons/one/media',
+      new FormData(),
+      'token',
+      vi.fn(),
+    )
+    expect(request.open.mock.calls[0][0]).toBe('PUT')
+  })
+  it('reports non-JSON HTTP failures without masking them with a TypeError', async () => {
+    transport(405, '')
+    await expect(
+      apiUpload(
+        '/community/posts/media',
+        new FormData(),
+        'token',
+        vi.fn(),
+        'POST',
+      ),
+    ).rejects.toMatchObject({ status: 405 })
   })
 })
