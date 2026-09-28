@@ -1,8 +1,11 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useCommunityApi } from './useCommunityApi'
 import { PostMedia } from './PostMedia'
+import { PostPoll } from './PostPoll'
+import { CommunityIcon } from './CommunityIcon'
+import { PostReactions, ReactionSummary } from './PostReactions'
 import type { Comment, Post } from './types'
 const date = (value: string) =>
   new Intl.DateTimeFormat('vi-VN', {
@@ -37,24 +40,16 @@ export function PostCard({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const requireLogin = !user
-  const toggleLike = async () => {
-    if (busy || requireLogin || !canInteract) return
-    setBusy(true)
-    try {
-      onChange(
-        await write<Post>(
-          `/community/posts/${post.id}/likes`,
-          post.likedByViewer ? 'DELETE' : 'POST',
-        ),
-      )
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Không thể thích bài viết.',
-      )
-    } finally {
-      setBusy(false)
+  useEffect(() => {
+    if (!post.mediaExpiresAt) return
+    const delay = new Date(post.mediaExpiresAt).getTime() - Date.now()
+    if (delay <= 0) {
+      onRemove()
+      return
     }
-  }
+    const timer = setTimeout(onRemove, Math.min(delay, 2_147_483_647))
+    return () => clearTimeout(timer)
+  }, [post.mediaExpiresAt, onRemove])
   const openComments = async () => {
     if (comments) {
       setComments(null)
@@ -172,8 +167,56 @@ export function PostCard({
           </button>
         )}
       </div>
-      {post.body && <p className="community-post-body">{post.body}</p>}
+      {post.body &&
+        (post.body !== post.poll?.question ||
+          post.appearance?.backgroundColor) && (
+          <p
+            className={
+              'community-post-body' +
+              (post.appearance?.backgroundColor ? ' has-custom-colors' : '')
+            }
+            style={
+              post.appearance?.backgroundColor
+                ? {
+                    backgroundColor: post.appearance.backgroundColor,
+                    color: post.appearance.fontColor ?? undefined,
+                  }
+                : undefined
+            }
+          >
+            {post.body}
+          </p>
+        )}
+      {post.appearance?.attachmentUrl && (
+        <a
+          className="community-post-link"
+          href={post.appearance.attachmentUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <CommunityIcon name="link" />
+          <span>
+            Link đính kèm
+            <small>{new URL(post.appearance.attachmentUrl).hostname}</small>
+          </span>
+          <CommunityIcon name="share" />
+        </a>
+      )}
+      {post.poll && (
+        <PostPoll
+          post={post}
+          canInteract={canInteract}
+          canModerate={canModerate}
+          onChange={onChange}
+        />
+      )}
       {post.media && <PostMedia postId={post.id} media={post.media} />}
+      {post.mediaExpiresAt && (
+        <small className="community-media-expiry">
+          Media/bài viết hết hạn:{' '}
+          {new Date(post.mediaExpiresAt).toLocaleString('vi-VN')}
+        </small>
+      )}
       {post.sharedPostId && (
         <div className="community-shared">
           <strong>{post.sharedAuthorName}</strong>
@@ -184,25 +227,25 @@ export function PostCard({
         </div>
       )}
       <div className="community-counts">
-        <span>{post.likeCount} lượt thích</span>
+        <ReactionSummary post={post} />
         <span>
           {post.commentCount} bình luận · {post.shareCount} chia sẻ
         </span>
       </div>
       <div className="community-actions">
-        <button
-          disabled={busy || requireLogin || !canInteract}
-          onClick={() => void toggleLike()}
-          aria-pressed={post.likedByViewer}
-        >
-          {post.likedByViewer ? '♥ Đã thích' : '♡ Thích'}
+        <PostReactions
+          post={post}
+          canInteract={canInteract}
+          onChange={onChange}
+        />
+        <button onClick={() => void openComments()}>
+          <CommunityIcon name="comment" /> Bình luận
         </button>
-        <button onClick={() => void openComments()}>▤ Bình luận</button>
         <button
           disabled={!post.shareable || requireLogin}
           onClick={() => setShareOpen(!shareOpen)}
         >
-          ↗ Chia sẻ
+          <CommunityIcon name="share" /> Chia sẻ
         </button>
       </div>
       {requireLogin && (

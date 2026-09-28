@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCommunityApi } from './useCommunityApi'
 import { PostCard } from './PostCard'
+import { PostComposer } from './PostComposer'
 import type { FeedPage, Post } from './types'
 
 export function CommunityFeed({
@@ -16,21 +15,13 @@ export function CommunityFeed({
   canInteract?: boolean
   canModerate?: boolean
 }) {
-  const { user, upload } = useAuth()
-  const { read, write } = useCommunityApi()
+  const { read } = useCommunityApi()
   const [posts, setPosts] = useState<Post[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [moreLoading, setMoreLoading] = useState(false)
   const [autoLoadFailed, setAutoLoadFailed] = useState(false)
   const [error, setError] = useState('')
-  const [body, setBody] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [notice, setNotice] = useState('')
-  const [composerError, setComposerError] = useState('')
-  const [file, setFile] = useState<File | null>(null)
-  const [progress, setProgress] = useState(0)
-  const fileInput = useRef<HTMLInputElement>(null)
   const sentinel = useRef<HTMLDivElement>(null)
   const feedScope = useRef(0)
   const moreInFlight = useRef(false)
@@ -115,171 +106,13 @@ export function CommunityFeed({
     return () => observer.disconnect()
   }, [autoLoadFailed, cursor, load, loading, moreLoading])
 
-  const publish = async (event: FormEvent) => {
-    event.preventDefault()
-    if ((!body.trim() && !file) || submitting) return
-    setSubmitting(true)
-    try {
-      let post: Post
-      if (file) {
-        const form = new FormData()
-        form.append('file', file)
-        form.append('body', body.trim())
-        if (spaceId) form.append('spaceId', spaceId)
-        post = await upload<Post>(
-          '/community/posts/media',
-          form,
-          setProgress,
-          'POST',
-        )
-      } else {
-        post = await write<Post>('/community/posts', 'POST', {
-          body: body.trim(),
-          spaceId: spaceId ?? null,
-          sharedPostId: null,
-        })
-      }
-      if (post.status === 'PENDING') {
-        setNotice('Bài viết đã gửi và đang chờ quản trị viên cộng đồng duyệt.')
-      } else {
-        setPosts((current) => [post, ...current])
-        setNotice('')
-      }
-      setBody('')
-      setComposerError('')
-      setFile(null)
-      setProgress(0)
-      if (fileInput.current) fileInput.current.value = ''
-      setError('')
-    } catch (cause) {
-      setComposerError(
-        cause instanceof Error ? cause.message : 'Không đăng được bài viết.',
-      )
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   return (
     <section className="community-feed" aria-label="Bảng tin cộng đồng">
-      {canPost &&
-        (user ? (
-          <form
-            className="community-card community-composer"
-            onSubmit={(event) => void publish(event)}
-          >
-            <div className="community-avatar">
-              {user.displayName.slice(0, 1).toUpperCase()}
-            </div>
-            <div className="community-composer-content">
-              <label htmlFor="new-post" className="sr-only">
-                Nội dung bài viết
-              </label>
-              <textarea
-                id="new-post"
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                maxLength={5000}
-                placeholder={`Bạn muốn chia sẻ kiến thức gì, ${user.displayName}?`}
-                rows={3}
-                disabled={submitting}
-              />
-              <div className="community-composer-footer">
-                <label className="community-file-button">
-                  Ảnh / video
-                  <input
-                    ref={fileInput}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-                    disabled={submitting}
-                    aria-label="Ảnh hoặc video bài viết"
-                    onChange={(event) => {
-                      const selected = event.target.files?.[0] ?? null
-                      if (
-                        selected &&
-                        (selected.size <= 0 ||
-                          selected.size >= 10_000_000 ||
-                          ![
-                            'image/jpeg',
-                            'image/png',
-                            'image/webp',
-                            'video/mp4',
-                            'video/webm',
-                          ].includes(selected.type))
-                      ) {
-                        setComposerError(
-                          'Chọn JPEG, PNG, WebP, MP4 hoặc WebM nhỏ hơn 10 MB.',
-                        )
-                        event.target.value = ''
-                        setFile(null)
-                        return
-                      }
-                      setFile(selected)
-                      setComposerError('')
-                      setProgress(0)
-                    }}
-                  />
-                </label>
-                <span>
-                  {spaceId
-                    ? 'Bài của thành viên cần quản trị viên duyệt trước khi hiển thị.'
-                    : 'Chia sẻ câu hỏi, tài liệu hoặc kinh nghiệm học tập'}
-                </span>
-                <button
-                  className="community-primary"
-                  disabled={submitting || (!body.trim() && !file)}
-                >
-                  {submitting ? 'Đang đăng…' : 'Đăng bài'}
-                </button>
-              </div>
-              {file && (
-                <div className="community-upload-status" role="status">
-                  <span>
-                    {file.name} · {(file.size / 1_000_000).toFixed(2)} MB
-                  </span>
-                  {submitting ? (
-                    <progress
-                      value={progress}
-                      max={100}
-                      aria-label="Tiến độ tải media"
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFile(null)
-                        if (fileInput.current) fileInput.current.value = ''
-                      }}
-                    >
-                      Bỏ file
-                    </button>
-                  )}
-                </div>
-              )}
-              {composerError && (
-                <p className="community-error" role="alert">
-                  {composerError}
-                </p>
-              )}
-            </div>
-          </form>
-        ) : (
-          <div className="community-card community-guest-cta">
-            <strong>Chia sẻ điều bạn đang học.</strong>
-            <span>Đăng nhập để đăng bài, bình luận và tham gia cộng đồng.</span>
-            <Link
-              className="community-primary"
-              to="/login"
-              state={{ from: spaceId ? `/community/spaces/${spaceId}` : '/' }}
-            >
-              Đăng nhập
-            </Link>
-          </div>
-        ))}
-      {notice && (
-        <p className="community-inline-note" role="status">
-          {notice}
-        </p>
+      {canPost && (
+        <PostComposer
+          spaceId={spaceId}
+          onPublished={(post) => setPosts((current) => [post, ...current])}
+        />
       )}
       {error && !loading && posts.length > 0 && (
         <p className="community-error" role="alert">

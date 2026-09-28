@@ -147,6 +147,39 @@ try {
       viewport.width,
       'social feed and comment preview',
     )
+    const reactionPicker = await driver.findElement(
+      By.css('button[aria-label="Chọn cảm xúc"]'),
+    )
+    await driver.executeScript('arguments[0].click()', reactionPicker)
+    await driver.wait(
+      until.elementLocated(By.css('.community-reaction-picker')),
+      5000,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'reaction picker and poll',
+    )
+    await driver
+      .findElement(By.css('button[aria-label="Mở đoạn chat"]'))
+      .click()
+    const conversation = await driver.wait(
+      until.elementLocated(By.css('.direct-conversation')),
+      5000,
+    )
+    await driver.executeScript('arguments[0].click()', conversation)
+    await driver.wait(until.elementLocated(By.css('.direct-bubble')), 5000)
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'private inbox and direct thread',
+    )
+    await driver
+      .findElement(By.css('button[aria-label="Đóng cuộc trò chuyện"]'))
+      .click()
+    await driver
+      .findElement(By.css('button[aria-label="Đóng hộp thư"]'))
+      .click()
     await driver.get(`${baseUrl}/community/spaces/fixture-space`)
     await driver.wait(
       until.elementLocated(By.css('.community-review-item')),
@@ -350,6 +383,39 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
     ],
   }))
   const fixtures = {
+    '/api/v1/community/direct/conversations?filter=all': {
+      conversations: [
+        {
+          id: 'fixture-direct',
+          peerId: 'peer',
+          peerName: 'Người học tiếng Anh',
+          initiatorId: 'peer',
+          status: 'ACTIVE',
+          lastMessage: 'Let us practice English!',
+          updatedAt: '2026-09-28T08:00:00Z',
+          unreadCount: 1,
+          readSequence: 0,
+        },
+      ],
+      totalUnread: 1,
+      requestCount: 0,
+      nextPage: null,
+    },
+    '/api/v1/community/direct/conversations/fixture-direct/messages': {
+      messages: [
+        {
+          id: 'direct-message',
+          sequence: 1,
+          authorId: 'peer',
+          body: 'Let us practice English!',
+          createdAt: '2026-09-28T08:00:00Z',
+        },
+      ],
+      oldestSequence: 1,
+      newestSequence: 1,
+      hasMore: false,
+    },
+    '/api/v1/community/direct/conversations/fixture-direct/read': null,
     '/api/v1/community/spaces': [
       {
         id: 'fixture-space',
@@ -526,6 +592,9 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
         id:'fixture-post',authorId:'member',authorName:'Người học',spaceId:'fixture-space',spaceName:'English Community',body:'A useful listening tip: '+ 'English'.repeat(60),
         sharedPostId:null,sharedBody:null,sharedAuthorName:null,createdAt:'2026-09-28T08:00:00Z',likeCount:3,commentCount:5,shareCount:2,likedByViewer:false,shareable:true,status:'ACTIVE',
         commentPreview:[{id:'comment',postId:'fixture-post',parentId:null,authorId:'other',authorName:'Bạn học',body:'Thanks for sharing your practice routine.',removed:false,createdAt:'2026-09-28T08:00:00Z'}],
+        appearance:{attachmentUrl:'https://example.com/enroll',backgroundColor:'#173569',fontColor:'#ffffff'},
+        poll:{kind:'POLL',question:'Which skill would you like to practice?',options:[{id:'reading',label:'Reading',votes:2},{id:'listening',label:'Listening',votes:1}],totalVotes:3,myOptionId:null,closesAt:null,closed:false},
+        reactionCounts:{LIKE:2,LOVE:1},viewerReaction:null,
       }],nextCursor:null};
       if (fixture !== undefined) {
         return Promise.resolve(new Response(JSON.stringify(fixture), {

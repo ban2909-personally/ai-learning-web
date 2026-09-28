@@ -13,6 +13,8 @@ export type Space = {
 }
 
 export type Post = {
+  viewerReaction?: ReactionKind | null
+  reactionCounts?: Partial<Record<ReactionKind, number>>
   id: string
   authorId: string
   authorName: string
@@ -32,6 +34,21 @@ export type Post = {
   commentPreview?: Comment[]
   media?: CommunityMedia | null
   sharedMedia?: CommunityMedia | null
+  appearance?: {
+    attachmentUrl: string | null
+    backgroundColor: string | null
+    fontColor: string | null
+  } | null
+  poll?: {
+    kind: 'POLL' | 'ELECTION'
+    question: string
+    options: { id: string; label: string; votes: number }[]
+    totalVotes: number
+    myOptionId: string | null
+    closesAt: string | null
+    closed: boolean
+  } | null
+  mediaExpiresAt?: string | null
 }
 
 export type CommunityMedia = {
@@ -39,6 +56,15 @@ export type CommunityMedia = {
   contentType: string
   sizeBytes: number
 }
+
+export type ReactionKind =
+  | 'LIKE'
+  | 'LOVE'
+  | 'CARE'
+  | 'HAHA'
+  | 'WOW'
+  | 'SAD'
+  | 'ANGRY'
 
 export type FeedPage = { posts: Post[]; nextCursor: string | null }
 

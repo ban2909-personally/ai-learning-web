@@ -9,6 +9,7 @@ import {
   roleLabels,
 } from '../features/auth/roles'
 import { NotificationMenu } from '../features/notifications/NotificationMenu'
+import { DirectChatMenu } from '../features/messaging/DirectChatMenu'
 
 export function AppHeader() {
   const { user, logout } = useAuth()
@@ -120,6 +121,7 @@ export function AppHeader() {
           {user ? (
             <>
               {member && <NotificationMenu />}
+              <DirectChatMenu key={user.id} />
               <span className="account-avatar" aria-hidden="true">
                 {user.displayName.slice(0, 1).toUpperCase()}
               </span>
