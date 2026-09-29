@@ -26,12 +26,29 @@ export function CourseCatalogPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    apiRequest<Category[]>('/categories')
-      .then(setCategories)
-      .catch(() => setCategories([]))
+    const controller = new AbortController()
+    apiRequest<Category[]>('/categories?publishedOnly=true', {
+      signal: controller.signal,
+    })
+      .then((items) => {
+        if (controller.signal.aborted) return
+        setCategories(items)
+        if (
+          initialFilters.category &&
+          !items.some((item) => item.slug === initialFilters.category)
+        ) {
+          setFilters((current) => ({ ...current, category: '' }))
+          setActiveFilters((current) => ({ ...current, category: '' }))
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setCategories([])
+      })
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
     const params = new URLSearchParams()
     if (activeFilters.search) params.set('search', activeFilters.search)
     if (activeFilters.category) params.set('category', activeFilters.category)
@@ -39,16 +56,24 @@ export function CourseCatalogPage() {
     params.set('size', '12')
     setLoading(true)
     setError(null)
-    apiRequest<PageResponse<CourseSummary>>(`/courses?${params}`)
-      .then(setResult)
-      .catch((caught: unknown) =>
-        setError(
-          caught instanceof ApiError
-            ? caught.message
-            : 'Không thể tải danh mục khóa học.',
-        ),
-      )
-      .finally(() => setLoading(false))
+    apiRequest<PageResponse<CourseSummary>>(`/courses?${params}`, {
+      signal: controller.signal,
+    })
+      .then((value) => {
+        if (!controller.signal.aborted) setResult(value)
+      })
+      .catch((caught: unknown) => {
+        if (!controller.signal.aborted)
+          setError(
+            caught instanceof ApiError
+              ? caught.message
+              : 'Không thể tải danh mục khóa học.',
+          )
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
+    return () => controller.abort()
   }, [activeFilters])
 
   const submit = (event: FormEvent) => {

@@ -48,31 +48,79 @@ describe('CourseCatalogPage', () => {
     )
 
     expect(
-      await screen.findByRole('heading', { name: 'Spring Boot thực chiến' }),
+      await screen.findByRole(
+        'heading',
+        { name: 'Spring Boot thực chiến' },
+        { timeout: 5000 },
+      ),
     ).toBeInTheDocument()
     await waitFor(() =>
       expect(screen.getByText('1 khóa học phù hợp')).toBeInTheDocument(),
     )
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/categories?publishedOnly=true'),
+      expect.any(Object),
+    )
   })
 
-  it('applies a category passed by the home page link', async () => {
+  it('clears a legacy category deep link absent from the published category list', async () => {
     const fetchMock = vi
       .spyOn(globalThis, 'fetch')
       .mockImplementation(
         async (input) =>
           new Response(
-            String(input).includes('/categories')
-              ? JSON.stringify([])
-              : JSON.stringify({
-                  items: [],
-                  page: 0,
-                  size: 12,
-                  totalElements: 0,
-                  totalPages: 0,
-                }),
+            JSON.stringify(
+              String(input).includes('/categories')
+                ? [{ id: 'reading', slug: 'reading', name: 'Đọc tiếng Anh' }]
+                : {
+                    items: [],
+                    page: 0,
+                    size: 12,
+                    totalElements: 0,
+                    totalPages: 0,
+                  },
+            ),
             { status: 200 },
           ),
       )
+    render(
+      <MemoryRouter initialEntries={['/courses?category=backend']}>
+        <CourseCatalogPage />
+      </MemoryRouter>,
+    )
+    await waitFor(() =>
+      expect(screen.getByLabelText('Danh mục')).toHaveValue(''),
+    )
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringMatching(/\/courses\?size=12$/),
+        expect.any(Object),
+      ),
+    )
+    expect(
+      screen.queryByRole('option', { name: 'Backend' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('option', { name: 'Đọc tiếng Anh' }),
+    ).toBeInTheDocument()
+  })
+
+  it('applies a category passed by the home page link', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async (input) =>
+        new Response(
+          String(input).includes('/categories')
+            ? JSON.stringify([])
+            : JSON.stringify({
+                items: [],
+                page: 0,
+                size: 12,
+                totalElements: 0,
+                totalPages: 0,
+              }),
+          { status: 200 },
+        ),
+    )
     render(
       <MemoryRouter initialEntries={['/courses?category=backend']}>
         <CourseCatalogPage />
