@@ -79,6 +79,16 @@ export type Comment = {
   createdAt: string
 }
 
+export type PublicProfile = { id: string; displayName: string }
+
+export type DiscoveryPage = {
+  spaces: Space[]
+  people: PublicProfile[]
+  spacesHasMore: boolean
+  peopleHasMore: boolean
+  page: number
+}
+
 export type Member = {
   userId: string
   displayName: string

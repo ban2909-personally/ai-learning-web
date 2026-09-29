@@ -2,16 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CommunityIcon } from './CommunityIcon'
 import { useCommunityApi } from './useCommunityApi'
-import type { Space } from './types'
-
-export type PublicProfile = { id: string; displayName: string }
-type DiscoveryPage = {
-  spaces: Space[]
-  people: PublicProfile[]
-  spacesHasMore: boolean
-  peopleHasMore: boolean
-  page: number
-}
+import type { DiscoveryPage } from './types'
 
 export function CommunitySearch() {
   const { read } = useCommunityApi()

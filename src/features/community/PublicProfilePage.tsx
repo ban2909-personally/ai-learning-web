@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CommunityFeed } from './CommunityFeed'
 import { useCommunityApi } from './useCommunityApi'
-import type { PublicProfile } from './CommunitySearch'
+import type { PublicProfile } from './types'
 
 export function PublicProfilePage() {
   const { id } = useParams()
