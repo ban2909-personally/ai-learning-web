@@ -1,0 +1,473 @@
+.social-profile-page,
+.social-friends-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  color: #17243f;
+}
+.social-profile-back {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #556b8f;
+  font-size: 14px;
+}
+.social-profile-header {
+  overflow: hidden;
+  border: 1px solid #dce5f2;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 12px 40px #162e6410;
+}
+.social-profile-cover {
+  height: 250px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(115deg, #172b5d, #6d59b8 55%, #64bfcc);
+  color: #ffffffca;
+}
+.social-profile-cover span {
+  position: absolute;
+  top: 42px;
+  left: 40px;
+  max-width: 65%;
+  font-size: clamp(20px, 3.4vw, 40px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.social-profile-cover i {
+  position: absolute;
+  width: 290px;
+  height: 290px;
+  border: 1px solid #ffffff4d;
+  border-radius: 50%;
+  right: -40px;
+  bottom: -130px;
+}
+.social-profile-cover i:nth-of-type(2) {
+  width: 420px;
+  height: 420px;
+  right: -70px;
+  bottom: -165px;
+}
+.social-profile-cover i:nth-of-type(3) {
+  width: 550px;
+  height: 550px;
+  right: -100px;
+  bottom: -200px;
+}
+.social-cover-ocean {
+  background: linear-gradient(125deg, #122d59, #287caa 60%, #91d8d0);
+}
+.social-cover-sunset {
+  background: linear-gradient(125deg, #5d2858, #cb758a 60%, #edb777);
+}
+.social-cover-forest {
+  background: linear-gradient(125deg, #163d3a, #499786 60%, #c4d6a0);
+}
+.social-profile-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  padding: 0 30px 26px;
+  position: relative;
+}
+.social-profile-avatar {
+  width: 138px;
+  height: 138px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: -42px;
+  border: 7px solid white;
+  border-radius: 50%;
+  background: #edf2fc;
+  color: #4961b0;
+  font-size: 60px;
+  font-weight: 750;
+  box-shadow: 0 4px 18px #152e6512;
+}
+.social-profile-name {
+  flex: 1;
+  min-width: 0;
+  padding-top: 20px;
+}
+.social-profile-name small,
+.social-friends-page header small {
+  color: #697eb2;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+.social-profile-name h1 {
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 5px 0 8px;
+  overflow-wrap: anywhere;
+}
+.social-profile-name p {
+  color: #60728f;
+  margin: 5px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.social-profile-name p svg,
+.social-profile-intro svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.social-profile-bio {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.social-profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.social-profile-identity > .social-profile-actions {
+  max-width: 320px;
+  justify-content: flex-end;
+  padding-top: 32px;
+}
+.social-profile-actions button,
+.social-profile-actions > a,
+.social-friend-menu summary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+.social-profile-actions svg {
+  width: 18px;
+  height: 18px;
+}
+.social-profile-actions [role='alert'] {
+  flex-basis: 100%;
+  font-size: 13px;
+}
+.social-friend-menu {
+  position: relative;
+  font-size: 13px;
+}
+.social-friend-menu summary {
+  cursor: pointer;
+  background: #eef6f3;
+  color: #277967;
+  list-style: none;
+}
+.social-friend-menu > button {
+  display: block;
+  margin-top: 7px;
+  background: white;
+  border: 1px solid #e6d2d5;
+  color: #a23c55;
+}
+.social-profile-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 0 24px;
+  background: white;
+  border-top: 1px solid #e4eaf4;
+}
+.social-profile-tabs button,
+.social-profile-tabs a {
+  padding: 17px 20px;
+  color: #6c7c94;
+  border-bottom: 3px solid transparent;
+  font-weight: 650;
+  font-size: 14px;
+}
+.social-profile-tabs button[aria-pressed='true'] {
+  color: #5364cf;
+  border-bottom-color: #6272df;
+}
+.social-profile-tabs button:hover,
+.social-profile-tabs a:hover {
+  background: #f6f8fc;
+}
+.social-profile-content {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.45fr);
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.social-profile-content.is-about {
+  display: block;
+}
+.social-profile-intro {
+  padding: 25px;
+  background: white;
+  border: 1px solid #dfe7f2;
+  border-radius: 18px;
+}
+.social-profile-intro h2,
+.social-profile-posts > h2,
+.social-profile-editor h2 {
+  font-size: 18px;
+  font-weight: 750;
+  margin-bottom: 17px;
+}
+.social-profile-intro p,
+.social-profile-intro a {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 14px;
+  color: #65738b;
+}
+.social-profile-intro p:not(.social-profile-bio),
+.social-profile-intro a,
+.social-profile-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.social-profile-intro a {
+  color: #5969c1;
+  overflow-wrap: anywhere;
+}
+.social-profile-intro small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #8491a5;
+  margin-top: 20px;
+}
+.social-profile-count {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5eaf3;
+  color: #63748d;
+  font-size: 14px;
+}
+.social-profile-count strong {
+  color: #334762;
+}
+.social-profile-posts {
+  min-width: 0;
+}
+.social-profile-posts > h2 {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #dfe7f2;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+.social-profile-editor {
+  margin-top: 24px;
+  background: white;
+  border: 1px solid #dde5f4;
+  border-radius: 18px;
+  padding: 26px;
+}
+.social-profile-editor p {
+  color: #76849a;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.social-profile-editor fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.social-profile-editor label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #50617e;
+}
+.social-profile-editor label:first-child,
+.social-profile-editor .social-profile-actions {
+  grid-column: 1 / -1;
+}
+.social-profile-editor input,
+.social-profile-editor textarea,
+.social-profile-editor select {
+  width: 100%;
+  min-width: 0;
+  font-weight: 400;
+  font-size: 14px;
+  padding: 11px 12px;
+  background: #fafbfe;
+  border: 1px solid #d9e2f2;
+  border-radius: 9px;
+}
+.social-profile-editor textarea {
+  resize: vertical;
+}
+.social-author-link {
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.social-author-link:hover {
+  text-decoration: underline;
+}
+.social-author-avatar {
+  text-decoration: none;
+}
+.social-friends-page header {
+  padding: 26px 0;
+}
+.social-friends-page h1 {
+  font-size: clamp(25px, 4vw, 36px);
+  font-weight: 800;
+  margin: 8px 0;
+  letter-spacing: -0.035em;
+}
+.social-friends-page header p {
+  color: #77859a;
+  line-height: 1.7;
+  max-width: 650px;
+}
+.social-friends-page .social-profile-tabs {
+  border: 1px solid #dfe6f3;
+  border-radius: 15px;
+}
+.social-friends-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+.social-friend-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #dde5f3;
+  background: white;
+  border-radius: 18px;
+}
+.social-friend-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  color: #5d70a8;
+  background: linear-gradient(135deg, #f1f3fe, #e8f4f5);
+  font-size: 30px;
+  font-weight: 750;
+  margin-bottom: 16px;
+}
+.social-friend-card h2 {
+  font-weight: 750;
+  margin-bottom: 20px;
+  overflow-wrap: anywhere;
+}
+.social-friends-empty {
+  background: white;
+  border: 1px dashed #cfd9ee;
+  border-radius: 18px;
+  text-align: center;
+  padding: 40px 20px;
+  margin: 24px 0;
+}
+.social-friends-empty h2 {
+  font-weight: 750;
+  font-size: 20px;
+}
+.social-friends-empty p {
+  color: #78869b;
+  margin: 12px auto 22px;
+  max-width: 420px;
+  line-height: 1.7;
+}
+.direct-peer-recipient {
+  padding: 8px 0;
+  overflow-wrap: anywhere;
+  color: #607491;
+}
+.social-profile-page :focus-visible,
+.social-friends-page :focus-visible {
+  outline: 3px solid #aab9fc;
+  outline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .social-profile-identity {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .social-profile-identity > .social-profile-actions {
+    flex-basis: 100%;
+    max-width: none;
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+  .social-friends-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .social-profile-page,
+  .social-friends-page {
+    padding: 16px 12px 40px;
+  }
+  .social-profile-header {
+    border-radius: 18px;
+  }
+  .social-profile-cover {
+    height: 175px;
+  }
+  .social-profile-cover span {
+    top: 28px;
+    left: 22px;
+    max-width: 75%;
+  }
+  .social-profile-identity {
+    padding: 0 18px 20px;
+    gap: 12px;
+  }
+  .social-profile-avatar {
+    width: 94px;
+    height: 94px;
+    font-size: 40px;
+    border-width: 5px;
+    margin-top: -32px;
+  }
+  .social-profile-name {
+    padding-top: 14px;
+    flex-basis: calc(100% - 112px);
+  }
+  .social-profile-name small {
+    font-size: 8px;
+  }
+  .social-profile-name p {
+    font-size: 12px;
+  }
+  .social-profile-tabs {
+    padding: 0 10px;
+  }
+  .social-profile-tabs button,
+  .social-profile-tabs a {
+    padding: 15px 11px;
+    font-size: 13px;
+  }
+  .social-profile-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .social-profile-intro {
+    padding: 20px;
+  }
+  .social-profile-editor {
+    padding: 20px;
+  }
+  .social-profile-editor fieldset {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .social-friends-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

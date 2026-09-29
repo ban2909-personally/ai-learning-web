@@ -12,6 +12,35 @@ export type Space = {
   createdAt: string
 }
 
+export type FriendshipRelationship =
+  | 'SELF'
+  | 'NONE'
+  | 'OUTGOING'
+  | 'INCOMING'
+  | 'FRIENDS'
+export type FriendshipSummary = {
+  relationship: FriendshipRelationship
+  friendCount: number
+  mutualFriendCount: number
+}
+export type SocialProfile = {
+  profile: PublicProfile & {
+    bio: string
+    location: string
+    website: string
+    coverTheme: 'aurora' | 'ocean' | 'sunset' | 'forest'
+  }
+  friendship: FriendshipSummary
+}
+export type FriendPage = {
+  people: {
+    person: PublicProfile
+    relationship: FriendshipRelationship
+    updatedAt: string
+  }[]
+  nextPage: number | null
+}
+
 export type Post = {
   viewerReaction?: ReactionKind | null
   reactionCounts?: Partial<Record<ReactionKind, number>>

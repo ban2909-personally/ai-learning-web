@@ -18,6 +18,31 @@ vi.mock('./useCommunityApi', () => ({
 }))
 
 describe('CommunityHomePage', () => {
+  it('keeps homepage navigation social-only and exposes own profile and friends', async () => {
+    mocks.user = { id: 'guest-id', displayName: 'Khách', roles: ['GUEST'] }
+    render(
+      <MemoryRouter>
+        <CommunityHomePage />
+      </MemoryRouter>,
+    )
+    await screen.findByText('Chưa có bài viết nào.')
+    expect(screen.getByRole('link', { name: 'Hồ sơ của tôi' })).toHaveAttribute(
+      'href',
+      '/community/people/guest-id',
+    )
+    expect(
+      screen.getByRole('link', { name: 'Bạn bè & lời mời' }),
+    ).toHaveAttribute('href', '/community/friends')
+    for (const name of [
+      'Khóa học',
+      'Luyện thi tiếng Anh',
+      'Học liệu miễn phí',
+      'Thẻ ghi nhớ',
+      'Lớp học của tôi',
+    ])
+      expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
+  })
+
   beforeEach(() => {
     mocks.user = null
     mocks.write.mockReset()
@@ -138,6 +163,14 @@ describe('CommunityHomePage', () => {
       </MemoryRouter>,
     )
     expect(await screen.findByText('Useful tip')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Học viên' })).toHaveAttribute(
+      'href',
+      '/community/people/author',
+    )
+    expect(screen.getByRole('link', { name: 'Người học' })).toHaveAttribute(
+      'href',
+      '/community/people/other',
+    )
     expect(screen.getByText('5 bình luận · 2 chia sẻ')).toBeInTheDocument()
     expect(
       mocks.read.mock.calls.every(

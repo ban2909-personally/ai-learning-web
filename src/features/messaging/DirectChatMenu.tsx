@@ -6,10 +6,13 @@ import { useCommunityApi } from '../community/useCommunityApi'
 import { CommunityIcon } from '../community/CommunityIcon'
 import { DirectThread } from './DirectThread'
 import type { DirectConversation, DirectInbox } from './types'
+import type { PublicProfile } from '../community/types'
+import { useDirectChatLauncher } from './DirectChatContext'
 
 export function DirectChatMenu() {
   const { user } = useAuth()
   const { read, write } = useCommunityApi()
+  const { launch, clearLaunch } = useDirectChatLauncher()
   const [open, setOpen] = useState(false)
   const [inbox, setInbox] = useState<DirectInbox | null>(null)
   const [filter, setFilter] = useState('all')
@@ -19,16 +22,48 @@ export function DirectChatMenu() {
   const [selected, setSelected] = useState<DirectConversation | null>(null)
   const [compose, setCompose] = useState(false)
   const [email, setEmail] = useState('')
+  const [peer, setPeer] = useState<PublicProfile | null>(null)
   const [body, setBody] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
   const button = useRef<HTMLButtonElement>(null)
   const pending = useRef<{
-    email: string
+    recipient: string
     body: string
     clientId: string
   } | null>(null)
+  useEffect(() => {
+    if (!launch || !user) return
+    const controller = new AbortController()
+    setOpen(true)
+    setSelected(null)
+    setCompose(false)
+    setError('')
+    setBody('')
+    setEmail('')
+    setPeer(launch.person)
+    pending.current = null
+    void read<DirectConversation | null>(
+      `/community/direct/peers/${launch.person.id}`,
+      { signal: controller.signal },
+    )
+      .then((conversation) => {
+        if (controller.signal.aborted) return
+        if (conversation) setSelected(conversation)
+        else setCompose(true)
+        clearLaunch()
+      })
+      .catch((cause: unknown) => {
+        if (!controller.signal.aborted) {
+          setError(
+            cause instanceof Error ? cause.message : 'Không mở được đoạn chat.',
+          )
+          clearLaunch()
+        }
+      })
+    return () => controller.abort()
+  }, [launch, user?.id, read, clearLaunch])
   useEffect(() => {
     if (!open) return
     const controller = new AbortController()
@@ -103,6 +138,7 @@ export function DirectChatMenu() {
     if (!open && !selected) return
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        clearLaunch()
         setOpen(false)
         setSelected(null)
         button.current?.focus()
@@ -110,28 +146,34 @@ export function DirectChatMenu() {
     }
     document.addEventListener('keydown', escape)
     return () => document.removeEventListener('keydown', escape)
-  }, [open, selected])
+  }, [open, selected, clearLaunch])
   const start = async (event: FormEvent) => {
     event.preventDefault()
-    if (busy || !email.trim() || !body.trim()) return
+    if (busy || (!peer && !email.trim()) || !body.trim()) return
     setBusy(true)
-    const recipient = email.trim(),
+    const recipient = peer?.id ?? email.trim(),
       text = body.trim()
     if (
       !pending.current ||
-      pending.current.email !== recipient ||
+      pending.current.recipient !== recipient ||
       pending.current.body !== text
     )
       pending.current = {
-        email: recipient,
+        recipient,
         body: text,
         clientId: crypto.randomUUID(),
       }
     try {
       const conversation = await write<DirectConversation>(
-        '/community/direct/conversations',
+        peer
+          ? `/community/direct/peers/${peer.id}`
+          : '/community/direct/conversations',
         'POST',
-        pending.current,
+        {
+          clientId: pending.current.clientId,
+          body: pending.current.body,
+          ...(peer ? {} : { email: recipient }),
+        },
       )
       setSelected(conversation)
       setCompose(false)
@@ -180,13 +222,20 @@ export function DirectChatMenu() {
                 <h2>Đoạn chat</h2>
                 <button
                   aria-label="Viết tin nhắn mới"
-                  onClick={() => setCompose((value) => !value)}
+                  onClick={() => {
+                    setPeer(null)
+                    setSelected(null)
+                    setBody('')
+                    pending.current = null
+                    setCompose((value) => !value)
+                  }}
                 >
                   <CommunityIcon name="compose" />
                 </button>
                 <button
                   aria-label="Đóng hộp thư"
                   onClick={() => {
+                    clearLaunch()
                     setOpen(false)
                     button.current?.focus()
                   }}
@@ -227,17 +276,23 @@ export function DirectChatMenu() {
                   className="direct-new-chat"
                   onSubmit={(event) => void start(event)}
                 >
-                  <label>
-                    Email người nhận
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      maxLength={254}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="student@demo.local"
-                    />
-                  </label>
+                  {peer ? (
+                    <p className="direct-peer-recipient">
+                      Gửi đến <strong>{peer.displayName}</strong>
+                    </p>
+                  ) : (
+                    <label>
+                      Email người nhận
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        maxLength={254}
+                        onChange={(event) => setEmail(event.target.value)}
+                        placeholder="student@demo.local"
+                      />
+                    </label>
+                  )}
                   <label>
                     Tin nhắn mở đầu
                     <textarea

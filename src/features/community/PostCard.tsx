@@ -140,9 +140,13 @@ export function PostCard({
   return (
     <article className="community-card community-post">
       <div className="community-post-head">
-        <div className="community-avatar">
+        <Link
+          className="community-avatar social-author-avatar"
+          to={`/community/people/${post.authorId}`}
+          aria-label={`Hồ sơ ${post.authorName}`}
+        >
           {post.authorName.slice(0, 1).toUpperCase()}
-        </div>
+        </Link>
         <div>
           {post.spaceId && (
             <Link
@@ -152,7 +156,12 @@ export function PostCard({
               {post.spaceName}
             </Link>
           )}
-          <strong>{post.authorName}</strong>
+          <Link
+            className="social-author-link"
+            to={`/community/people/${post.authorId}`}
+          >
+            <strong>{post.authorName}</strong>
+          </Link>
           <p>
             <time dateTime={post.createdAt}>{date(post.createdAt)}</time>
           </p>
@@ -267,7 +276,12 @@ export function PostCard({
                 {item.authorName.slice(0, 1).toUpperCase()}
               </div>
               <div>
-                <strong>{item.authorName}</strong>
+                <Link
+                  className="social-author-link"
+                  to={`/community/people/${item.authorId}`}
+                >
+                  <strong>{item.authorName}</strong>
+                </Link>
                 <p>{item.body}</p>
               </div>
             </div>
@@ -320,7 +334,12 @@ export function PostCard({
                 {item.authorName.slice(0, 1).toUpperCase()}
               </div>
               <div>
-                <strong>{item.authorName}</strong>
+                <Link
+                  className="social-author-link"
+                  to={`/community/people/${item.authorId}`}
+                >
+                  <strong>{item.authorName}</strong>
+                </Link>
                 <time dateTime={item.createdAt}>{date(item.createdAt)}</time>
                 <p>{item.removed ? 'Bình luận đã được xóa' : item.body}</p>
                 {user && canInteract && !item.removed && !item.parentId && (

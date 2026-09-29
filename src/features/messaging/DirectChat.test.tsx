@@ -14,6 +14,9 @@ vi.mock('../auth/AuthContext', () => ({
 vi.mock('../community/useCommunityApi', () => ({
   useCommunityApi: () => ({ read: mocks.read, write: mocks.write }),
 }))
+vi.mock('./DirectChatContext', () => ({
+  useDirectChatLauncher: () => ({ launch: null, clearLaunch: vi.fn() }),
+}))
 const conversation: DirectConversation = {
   id: 'chat',
   peerId: 'recipient',

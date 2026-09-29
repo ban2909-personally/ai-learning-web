@@ -115,56 +115,6 @@
   font-size: 12px;
   margin-top: 3px;
 }
-.community-profile-page {
-  max-width: 760px;
-  margin: 32px auto;
-  padding: 0 20px;
-}
-.community-profile-hero {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: linear-gradient(120deg, #eaf4ff, #f1fcfa);
-  padding: 28px;
-  border: 1px solid #d7e5f3;
-  border-radius: 20px;
-  margin: 20px 0;
-}
-.community-profile-hero > .account-avatar {
-  width: 72px;
-  height: 72px;
-  flex: none;
-  font-size: 28px;
-}
-.community-profile-hero h1 {
-  font-size: 28px;
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
-.community-profile-hero small {
-  color: #2474c8;
-  letter-spacing: 0.08em;
-  font-size: 11px;
-  font-weight: 700;
-}
-.community-profile-hero p {
-  font-size: 14px;
-  color: #5b7590;
-  margin-top: 6px;
-}
-.community-resource-shortcut {
-  display: block !important;
-  background: linear-gradient(135deg, #eaf5ff, #e9faf3);
-  border-radius: 14px;
-  margin: 10px 0 20px;
-  padding: 16px !important;
-}
-.community-resource-shortcut small {
-  display: block;
-  line-height: 1.6;
-  margin-top: 7px;
-  color: #54718d;
-}
 .english-resources-page {
   max-width: 1200px;
   margin: 32px auto;
@@ -346,19 +296,5 @@
   .english-resource-filters label {
     min-width: 100%;
     flex: 1;
-  }
-  .community-profile-page {
-    padding: 0 14px;
-  }
-  .community-profile-hero {
-    padding: 18px;
-    gap: 12px;
-  }
-  .community-profile-hero h1 {
-    font-size: 22px;
-  }
-  .community-profile-hero > .account-avatar {
-    width: 50px;
-    height: 50px;
   }
 }

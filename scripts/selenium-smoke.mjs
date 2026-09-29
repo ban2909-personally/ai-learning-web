@@ -171,7 +171,7 @@ try {
     )
     await person.click()
     await driver.wait(
-      until.elementLocated(By.css('.community-profile-hero h1')),
+      until.elementLocated(By.css('.social-profile-name h1')),
       5000,
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'public profile')
@@ -352,6 +352,9 @@ try {
     )
     await assertNoHorizontalOverflow(driver, viewport.width, 'exam editor')
   }
+  console.info(
+    'Selenium smoke PASS: public/member/instructor flows at 320/768/1440 px',
+  )
 } finally {
   if (driver) await driver.quit()
   preview.kill()
@@ -645,7 +648,7 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
       const url = new URL(requestUrl, window.location.origin);
       let fixture = fixtures[url.pathname + url.search];
       if (url.pathname === '/api/v1/community/search') fixture = {spaces:[{id:'fixture-space',name:'Hội trí tuệ nhân tạo',kind:'GROUP',visibility:'PRIVATE'}],people:[{id:'fixture-person',displayName:'Hà Anh'}],spacesHasMore:false,peopleHasMore:false,page:0};
-      if (url.pathname === '/api/v1/community/people/fixture-person') fixture = {id:'fixture-person',displayName:'Hà Anh'};
+      if (url.pathname === '/api/v1/community/people/fixture-person/profile') fixture = {profile:{id:'fixture-person',displayName:'Hà Anh',bio:'English learning together.',location:'Hà Nội',website:'https://example.test',coverTheme:'ocean'},friendship:{relationship:'NONE',friendCount:2,mutualFriendCount:0}};
       if (url.pathname === '/api/v1/community/feed') fixture = {posts:[{
         id:'fixture-post',authorId:'member',authorName:'Người học',spaceId:'fixture-space',spaceName:'English Community',body:'A useful listening tip: '+ 'English'.repeat(60),
         sharedPostId:null,sharedBody:null,sharedAuthorName:null,createdAt:'2026-09-28T08:00:00Z',likeCount:3,commentCount:5,shareCount:2,likedByViewer:false,shareable:true,status:'ACTIVE',

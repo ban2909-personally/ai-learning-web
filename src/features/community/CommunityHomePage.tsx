@@ -29,24 +29,14 @@ export function CommunityHomePage() {
         <Link to="/community/spaces">
           <CommunityIcon name="spaces" /> <span>Hội nhóm & trang</span>
         </Link>
-        <Link to="/courses">
-          <CommunityIcon name="courses" /> <span>Khóa học</span>
-        </Link>
-        <Link to="/practice">
-          <CommunityIcon name="courses" /> <span>Luyện thi tiếng Anh</span>
-        </Link>
-        <Link to="/resources">
-          <CommunityIcon name="courses" />
-          <span>Học liệu miễn phí</span>
-        </Link>
         {user && (
           <>
-            <div className="community-side-title">Học tập</div>
-            <Link to="/flashcards">
-              <CommunityIcon name="cards" /> <span>Thẻ ghi nhớ</span>
+            <div className="community-side-title">Kết nối</div>
+            <Link to={`/community/people/${user.id}`}>
+              <CommunityIcon name="page" /> <span>Hồ sơ của tôi</span>
             </Link>
-            <Link to="/my-learning">
-              <CommunityIcon name="classes" /> <span>Lớp học của tôi</span>
+            <Link to="/community/friends">
+              <CommunityIcon name="spaces" /> <span>Bạn bè & lời mời</span>
             </Link>
           </>
         )}
@@ -74,12 +64,11 @@ export function CommunityHomePage() {
               <Link to="/community/spaces">
                 Khám phá hội nhóm <span aria-hidden="true">↗</span>
               </Link>
-              <Link to="/courses">
-                Xem khóa học <span aria-hidden="true">→</span>
-              </Link>
-              <Link to="/practice">
-                Luyện đề tiếng Anh <span aria-hidden="true">→</span>
-              </Link>
+              {user && (
+                <Link to="/community/friends">
+                  Kết nối bạn bè <span aria-hidden="true">→</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -103,12 +92,6 @@ export function CommunityHomePage() {
           <Link to="/community/spaces">Xem tất cả nhóm & trang →</Link>
         </div>
         <div className="community-side-title">Nhóm & trang gần đây</div>
-        <Link className="community-resource-shortcut" to="/resources">
-          <strong>Tiếng Anh mỗi ngày ↗</strong>
-          <small>
-            Bài học miễn phí từ British Council, Cambridge, ETS, BBC & VOA
-          </small>
-        </Link>
         {spaces.slice(0, 5).map((space) => (
           <Link
             className="community-space-mini"

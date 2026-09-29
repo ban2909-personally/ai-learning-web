@@ -5,6 +5,7 @@ import { AuthProvider } from '../features/auth/AuthContext'
 import { AuthPage } from '../features/auth/AuthPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { NotificationProvider } from '../features/notifications/NotificationContext'
+import { DirectChatProvider } from '../features/messaging/DirectChatContext'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthContext'
 import { RoleRoute } from '../features/auth/RoleRoute'
@@ -17,6 +18,11 @@ import {
 const CommunityHomePage = lazy(() =>
   import('../features/community/CommunityHomePage').then((module) => ({
     default: module.CommunityHomePage,
+  })),
+)
+const FriendsPage = lazy(() =>
+  import('../features/community/FriendsPage').then((module) => ({
+    default: module.FriendsPage,
   })),
 )
 const PublicProfilePage = lazy(() =>
@@ -140,88 +146,97 @@ export function App() {
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
-          <Suspense
-            fallback={
-              <main className="community-route-loading">Đang mở trang…</main>
-            }
-          >
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route index element={<CommunityHomePage />} />
-                <Route
-                  path="community/people/:id"
-                  element={<PublicProfilePage />}
-                />
-                <Route path="resources" element={<EnglishResourcesPage />} />
-                <Route
-                  path="community/spaces"
-                  element={<SpaceDirectoryPage />}
-                />
-                <Route
-                  path="community/spaces/:id"
-                  element={<SpaceDetailPage />}
-                />
-                <Route path="courses" element={<CourseCatalogPage />} />
-                <Route path="courses/:slug" element={<CourseDetailPage />} />
-                <Route path="practice" element={<PracticeCatalogPage />} />
-                <Route
-                  path="practice/exams/:slug"
-                  element={<PracticeExamPage />}
-                />
-                <Route path="login" element={<AuthPage mode="login" />} />
-                <Route path="register" element={<AuthPage mode="register" />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route path="dashboard" element={<DashboardRoute />} />
-                </Route>
-                <Route element={<RoleRoute roles={workspaceRoles} />}>
+          <DirectChatProvider>
+            <Suspense
+              fallback={
+                <main className="community-route-loading">Đang mở trang…</main>
+              }
+            >
+              <Routes>
+                <Route element={<AppLayout />}>
+                  <Route index element={<CommunityHomePage />} />
                   <Route
-                    path="practice/attempts/:id"
-                    element={<PracticeAttemptPage />}
+                    path="community/people/:id"
+                    element={<PublicProfilePage />}
+                  />
+                  <Route path="resources" element={<EnglishResourcesPage />} />
+                  <Route
+                    path="community/spaces"
+                    element={<SpaceDirectoryPage />}
                   />
                   <Route
-                    path="practice/attempts/:id/result"
-                    element={<PracticeResultPage />}
+                    path="community/spaces/:id"
+                    element={<SpaceDetailPage />}
                   />
-                  <Route path="my-learning" element={<MyLearningPage />} />
-                  <Route path="learn/:slug" element={<LessonPlayerPage />} />
-                  <Route path="flashcards" element={<FlashcardsPage />} />
-                </Route>
-                <Route
-                  element={
-                    <RoleRoute roles={[...authorRoles, ...reviewRoles]} />
-                  }
-                >
+                  <Route path="courses" element={<CourseCatalogPage />} />
+                  <Route path="courses/:slug" element={<CourseDetailPage />} />
+                  <Route path="practice" element={<PracticeCatalogPage />} />
                   <Route
-                    path="instructor/courses"
-                    element={<CourseStudioPage />}
+                    path="practice/exams/:slug"
+                    element={<PracticeExamPage />}
                   />
+                  <Route path="login" element={<AuthPage mode="login" />} />
                   <Route
-                    path="instructor/writing-reviews"
-                    element={<PracticeWritingReviewPage />}
+                    path="register"
+                    element={<AuthPage mode="register" />}
                   />
-                  <Route path="instructor/exams" element={<ExamStudioPage />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="community/friends" element={<FriendsPage />} />
+                    <Route path="dashboard" element={<DashboardRoute />} />
+                  </Route>
+                  <Route element={<RoleRoute roles={workspaceRoles} />}>
+                    <Route
+                      path="practice/attempts/:id"
+                      element={<PracticeAttemptPage />}
+                    />
+                    <Route
+                      path="practice/attempts/:id/result"
+                      element={<PracticeResultPage />}
+                    />
+                    <Route path="my-learning" element={<MyLearningPage />} />
+                    <Route path="learn/:slug" element={<LessonPlayerPage />} />
+                    <Route path="flashcards" element={<FlashcardsPage />} />
+                  </Route>
                   <Route
-                    path="instructor/exams/:id"
-                    element={<ExamEditorPage />}
-                  />
-                </Route>
-                <Route element={<RoleRoute roles={authorRoles} />}>
-                  <Route
-                    path="instructor/courses/:slug/media"
-                    element={<LessonMediaManagerPage />}
-                  />
-                </Route>
-                <Route element={<RoleRoute roles={['ADMIN']} />}>
-                  <Route path="admin" element={<AdminLayout />}>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="accounts" element={<AccountsPage />} />
-                    <Route path="courses" element={<CourseStudioPage />} />
-                    <Route path="permissions" element={<PermissionsPage />} />
+                    element={
+                      <RoleRoute roles={[...authorRoles, ...reviewRoles]} />
+                    }
+                  >
+                    <Route
+                      path="instructor/courses"
+                      element={<CourseStudioPage />}
+                    />
+                    <Route
+                      path="instructor/writing-reviews"
+                      element={<PracticeWritingReviewPage />}
+                    />
+                    <Route
+                      path="instructor/exams"
+                      element={<ExamStudioPage />}
+                    />
+                    <Route
+                      path="instructor/exams/:id"
+                      element={<ExamEditorPage />}
+                    />
+                  </Route>
+                  <Route element={<RoleRoute roles={authorRoles} />}>
+                    <Route
+                      path="instructor/courses/:slug/media"
+                      element={<LessonMediaManagerPage />}
+                    />
+                  </Route>
+                  <Route element={<RoleRoute roles={['ADMIN']} />}>
+                    <Route path="admin" element={<AdminLayout />}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="accounts" element={<AccountsPage />} />
+                      <Route path="courses" element={<CourseStudioPage />} />
+                      <Route path="permissions" element={<PermissionsPage />} />
+                    </Route>
                   </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </Suspense>
+              </Routes>
+            </Suspense>
+          </DirectChatProvider>
         </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
