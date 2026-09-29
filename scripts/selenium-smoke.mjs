@@ -147,6 +147,62 @@ try {
       viewport.width,
       'social feed and comment preview',
     )
+    await driver.findElement(By.id('community-discovery-input')).sendKeys('h')
+    await driver.wait(
+      until.elementLocated(By.css('.community-discovery-result')),
+      5000,
+    )
+    const searchBox = await driver
+      .findElement(By.id('community-discovery-input'))
+      .getRect()
+    assert.ok(
+      searchBox.height < 80 && searchBox.width > 120,
+      'Homepage search must stay horizontal and readable',
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'live community search',
+    )
+    const person = await driver.findElement(
+      By.css(
+        '.community-discovery-result[href="/community/people/fixture-person"]',
+      ),
+    )
+    await person.click()
+    await driver.wait(
+      until.elementLocated(By.css('.community-profile-hero h1')),
+      5000,
+    )
+    await assertNoHorizontalOverflow(driver, viewport.width, 'public profile')
+    await driver.get(`${baseUrl}/resources`)
+    await driver.wait(
+      until.elementLocated(By.css('.english-resource-card')),
+      5000,
+    )
+    assert.equal(
+      (await driver.findElements(By.css('.english-resource-card'))).length,
+      10,
+    )
+    await driver
+      .findElement(By.css('.english-resource-filters input'))
+      .sendKeys('TOEIC')
+    await driver.wait(
+      async () =>
+        (await driver.findElements(By.css('.english-resource-card'))).length ===
+        1,
+      5000,
+    )
+    await assertNoHorizontalOverflow(
+      driver,
+      viewport.width,
+      'English resource filters',
+    )
+    await driver.get(baseUrl)
+    await driver.wait(
+      until.elementLocated(By.css('.community-comment-preview')),
+      5000,
+    )
     const reactionPicker = await driver.findElement(
       By.css('button[aria-label="Chọn cảm xúc"]'),
     )
@@ -588,6 +644,8 @@ async function installAuthenticatedApiFixture(driver, role = 'STUDENT') {
       const requestUrl = typeof input === 'string' ? input : input.url;
       const url = new URL(requestUrl, window.location.origin);
       let fixture = fixtures[url.pathname + url.search];
+      if (url.pathname === '/api/v1/community/search') fixture = {spaces:[{id:'fixture-space',name:'Hội trí tuệ nhân tạo',kind:'GROUP',visibility:'PRIVATE'}],people:[{id:'fixture-person',displayName:'Hà Anh'}],spacesHasMore:false,peopleHasMore:false,page:0};
+      if (url.pathname === '/api/v1/community/people/fixture-person') fixture = {id:'fixture-person',displayName:'Hà Anh'};
       if (url.pathname === '/api/v1/community/feed') fixture = {posts:[{
         id:'fixture-post',authorId:'member',authorName:'Người học',spaceId:'fixture-space',spaceName:'English Community',body:'A useful listening tip: '+ 'English'.repeat(60),
         sharedPostId:null,sharedBody:null,sharedAuthorName:null,createdAt:'2026-09-28T08:00:00Z',likeCount:3,commentCount:5,shareCount:2,likedByViewer:false,shareable:true,status:'ACTIVE',

@@ -19,6 +19,16 @@ const CommunityHomePage = lazy(() =>
     default: module.CommunityHomePage,
   })),
 )
+const PublicProfilePage = lazy(() =>
+  import('../features/community/PublicProfilePage').then((module) => ({
+    default: module.PublicProfilePage,
+  })),
+)
+const EnglishResourcesPage = lazy(() =>
+  import('../features/resources/EnglishResourcesPage').then((module) => ({
+    default: module.EnglishResourcesPage,
+  })),
+)
 const SpaceDirectoryPage = lazy(() =>
   import('../features/community/SpaceDirectoryPage').then((module) => ({
     default: module.SpaceDirectoryPage,
@@ -138,6 +148,11 @@ export function App() {
             <Routes>
               <Route element={<AppLayout />}>
                 <Route index element={<CommunityHomePage />} />
+                <Route
+                  path="community/people/:id"
+                  element={<PublicProfilePage />}
+                />
+                <Route path="resources" element={<EnglishResourcesPage />} />
                 <Route
                   path="community/spaces"
                   element={<SpaceDirectoryPage />}

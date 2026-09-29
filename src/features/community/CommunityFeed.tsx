@@ -6,11 +6,13 @@ import type { FeedPage, Post } from './types'
 
 export function CommunityFeed({
   spaceId,
+  authorId,
   canPost = true,
   canInteract = true,
   canModerate = false,
 }: {
   spaceId?: string
+  authorId?: string
   canPost?: boolean
   canInteract?: boolean
   canModerate?: boolean
@@ -33,6 +35,7 @@ export function CommunityFeed({
       const scope = feedScope.current
       const params = new URLSearchParams({ size: '12' })
       if (spaceId) params.set('spaceId', spaceId)
+      if (authorId) params.set('authorId', authorId)
       if (next) params.set('cursor', next)
       try {
         const page = await read<FeedPage>(
@@ -67,7 +70,7 @@ export function CommunityFeed({
         }
       }
     },
-    [read, spaceId],
+    [read, spaceId, authorId],
   )
 
   useEffect(() => {
@@ -159,7 +162,11 @@ export function CommunityFeed({
                 current.filter((item) => item.id !== post.id),
               )
             }
-            onShare={(shared) => setPosts((current) => [shared, ...current])}
+            onShare={(shared) => {
+              if (!authorId || shared.authorId === authorId) {
+                setPosts((current) => [shared, ...current])
+              }
+            }}
           />
         ))
       )}

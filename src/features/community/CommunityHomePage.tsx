@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { CommunityFeed } from './CommunityFeed'
 import { CommunityIcon } from './CommunityIcon'
+import { CommunitySearch } from './CommunitySearch'
 import { useCommunityApi } from './useCommunityApi'
 import type { Space } from './types'
 
@@ -34,6 +35,10 @@ export function CommunityHomePage() {
         <Link to="/practice">
           <CommunityIcon name="courses" /> <span>Luyện thi tiếng Anh</span>
         </Link>
+        <Link to="/resources">
+          <CommunityIcon name="courses" />
+          <span>Học liệu miễn phí</span>
+        </Link>
         {user && (
           <>
             <div className="community-side-title">Học tập</div>
@@ -50,6 +55,7 @@ export function CommunityHomePage() {
         </div>
       </aside>
       <div className="community-main">
+        <CommunitySearch />
         <div className="community-hero">
           <div className="community-hero-copy">
             <span className="community-eyebrow">
@@ -97,6 +103,12 @@ export function CommunityHomePage() {
           <Link to="/community/spaces">Xem tất cả nhóm & trang →</Link>
         </div>
         <div className="community-side-title">Nhóm & trang gần đây</div>
+        <Link className="community-resource-shortcut" to="/resources">
+          <strong>Tiếng Anh mỗi ngày ↗</strong>
+          <small>
+            Bài học miễn phí từ British Council, Cambridge, ETS, BBC & VOA
+          </small>
+        </Link>
         {spaces.slice(0, 5).map((space) => (
           <Link
             className="community-space-mini"

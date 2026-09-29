@@ -92,6 +92,7 @@ export function AppHeader() {
           <NavLink to="/community/spaces">Hội nhóm</NavLink>
           <NavLink to="/courses">Khóa học</NavLink>
           <NavLink to="/practice">Luyện thi tiếng Anh</NavLink>
+          <NavLink to="/resources">Học liệu miễn phí</NavLink>
           {member && (
             <>
               <NavLink to="/flashcards">Thẻ ghi nhớ</NavLink>
